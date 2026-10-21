@@ -17,6 +17,13 @@ const PORT = Number(process.env.PORT || 3000);
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
 const LEADS_CSV = process.env.LEADS_CSV || path.join(__dirname, "leads.csv");
+const PIXEL_ID = process.env.META_PIXEL_ID || "";
+const CAPI_TOKEN = process.env.META_CAPI_TOKEN || "";
+const CAPI_TEST_CODE = process.env.META_TEST_EVENT_CODE || ""; // faqat test paytida
+const AMO_URL = (process.env.AMOCRM_BASE_URL || "").replace(/\/+$/, "");
+const AMO_TOKEN = process.env.AMOCRM_TOKEN || "";
+const AMO_PIPELINE = Number(process.env.AMOCRM_PIPELINE_ID || 11406294); // "forum hamkorlar"
+const AMO_STATUS = Number(process.env.AMOCRM_STATUS_ID || 89356402);     // "YANGI LID"
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -36,7 +43,7 @@ http.createServer(async (req, res) => {
     console.error(e);
     json(res, 500, { ok: false, error: "server_error" });
   }
-}).listen(PORT, () => console.log(`Sayt: http://localhost:${PORT}  (lead -> ${BOT_TOKEN ? "Telegram + CSV" : "faqat CSV, TELEGRAM_BOT_TOKEN yo‘q"})`));
+}).listen(PORT, () => console.log(`Sayt: http://localhost:${PORT}  (lead -> ${BOT_TOKEN ? "Telegram + CSV" : "faqat CSV, TELEGRAM_BOT_TOKEN yo‘q"}${PIXEL_ID && CAPI_TOKEN ? " + Meta CAPI" : ""})`));
 
 async function handleLead(req, res) {
   const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").toString().split(",")[0].trim();
@@ -60,11 +67,84 @@ async function handleLead(req, res) {
   }
 
   appendCsv(lead);
+  const meta = {
+    event_id: str(body.event_id, 80), external_id: str(body.external_id, 80),
+    fbp: str(body.fbp, 120), fbc: str(body.fbc, 300), ua: str(req.headers["user-agent"], 400)
+  };
+  const capi = sendCapi(lead, meta); // Telegram bilan parallel
+  lead.fbclid = (/^fb\.\d\.\d+\.(.+)$/.exec(meta.fbc) || [])[1] || "";
+  lead.amo_id = await sendAmo(lead);
   if (BOT_TOKEN && CHAT_ID) {
     const sent = await sendTelegram(formatTelegram(lead));
     if (!sent) console.error("Telegram yuborilmadi", lead.phone);
   }
+  await capi;
   json(res, 200, { ok: true });
+}
+
+/* ---------- amoCRM: "forum hamkorlar" voronkasiga bitim + kontakt + kompaniya ---------- */
+async function sendAmo(l) {
+  if (!AMO_URL || !AMO_TOKEN) return null;
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` };
+  const track = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
+    ["UTM_CONTENT", l.utm_content], ["REFERRER", l.referrer], ["FBCLID", l.fbclid]]
+    .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
+  const tags = ["forum-sayt", l.package, l.source !== "form" ? l.source : null].filter(Boolean).map((name) => ({ name }));
+  const body = [{
+    name: `Forum hamkor: ${l.company}`,
+    pipeline_id: AMO_PIPELINE, status_id: AMO_STATUS,
+    custom_fields_values: track.length ? track : undefined,
+    _embedded: {
+      tags,
+      contacts: [{ first_name: l.name, custom_fields_values: [{ field_code: "PHONE", values: [{ value: "+" + l.phone.replace(/\D/g, ""), enum_code: "WORK" }] }] }],
+      companies: [{ name: l.company }]
+    }
+  }];
+  try {
+    const r = await fetch(`${AMO_URL}/api/v4/leads/complex`, { method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(6000) });
+    if (!r.ok) { console.error("amoCRM xato", r.status, (await r.text()).slice(0, 400)); return null; }
+    const id = (await r.json())[0]?.id;
+    if (!id) return null;
+    const text = [`Saytdan ariza (Forum 2026, biznes hamkorlar)`, `Yo‘nalish: ${l.direction}`, `Paket: ${l.package}`,
+      l.comment ? `Izoh: ${l.comment}` : null, `Sahifa: ${l.page || "—"}`].filter(Boolean).join("\n");
+    await fetch(`${AMO_URL}/api/v4/leads/${id}/notes`, {
+      method: "POST", headers, body: JSON.stringify([{ note_type: "common", params: { text } }]), signal: AbortSignal.timeout(6000)
+    }).catch((e) => console.error("amoCRM eslatma", e.message));
+    return id;
+  } catch (e) { console.error("amoCRM yuborilmadi", e.message); return null; }
+}
+
+/* ---------- Meta Conversions API: Lead ---------- */
+async function sendCapi(l, m) {
+  if (!PIXEL_ID || !CAPI_TOKEN || !m.event_id) return;
+  const sha = (s) => require("crypto").createHash("sha256").update(String(s).trim().toLowerCase()).digest("hex");
+  const parts = l.name.toLowerCase().replace(/[^\p{L}\s]/gu, "").split(/\s+/).filter(Boolean);
+  const user_data = {
+    ph: [sha(l.phone.replace(/\D/g, ""))],
+    country: [sha("uz")],
+    client_ip_address: l.ip || undefined,
+    client_user_agent: m.ua || undefined
+  };
+  if (parts[0]) user_data.fn = [sha(parts[0])];
+  if (parts[1]) user_data.ln = [sha(parts[parts.length - 1])];
+  if (m.external_id) user_data.external_id = [sha(m.external_id)];
+  if (m.fbp) user_data.fbp = m.fbp;
+  if (m.fbc) user_data.fbc = m.fbc;
+  const body = {
+    data: [{
+      event_name: "Lead", event_time: Math.floor(Date.now() / 1000), event_id: m.event_id,
+      action_source: "website", event_source_url: l.page || undefined, user_data,
+      custom_data: { content_name: l.package, content_category: l.direction }
+    }]
+  };
+  if (CAPI_TEST_CODE) body.test_event_code = CAPI_TEST_CODE;
+  try {
+    const r = await fetch(`https://graph.facebook.com/v23.0/${PIXEL_ID}/events?access_token=${encodeURIComponent(CAPI_TOKEN)}`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      signal: AbortSignal.timeout(3000)
+    });
+    if (!r.ok) console.error("CAPI xato", r.status, (await r.text()).slice(0, 300));
+  } catch (e) { console.error("CAPI yuborilmadi", e.message); }
 }
 
 function formatTelegram(l) {
@@ -82,6 +162,7 @@ function formatTelegram(l) {
     l.comment ? `💬 <b>Izoh:</b> ${esc(l.comment)}` : null,
     ``,
     `🔗 Manba: ${esc(src)}${utm ? ` · UTM: ${esc(utm)}` : ""}`,
+    l.amo_id ? `📋 <a href="${AMO_URL}/leads/detail/${l.amo_id}">amoCRM bitimi</a>` : (AMO_TOKEN ? `⚠️ amoCRM ga tushmadi` : null),
     `🕒 ${l.submitted_at.replace("T", " ").slice(0, 16)} UTC`
   ].filter((x) => x !== null).join("\n");
 }

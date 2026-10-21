@@ -75,10 +75,27 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
 - Lokal: Desktop/projectai/yangi oquvmarkazlarforumi (git clone qilinadi).
-- Meta reklama: kabinet `1338204998260984` ("forum 2026", Asia/Tashkent, USD, 2026-10-21 gacha
-  $457.72 sarflangan), sahifa `1339727935893840` ("Oquv markazlar forumi"), IG `17841477739867635`
-  (kabinetga ulanmagan — 2026-10-21 holati). Pixel/dataset yo‘q. Lead Ads ToS qabul qilinmagan.
-  Kampaniyalar faqat PAUSED holatda yaratiladi, yoqish — Nematulla tasdiqlagandan keyin.
+- Meta reklama (BM "oquvmarkazlarforumi" `1311775053970451`, 2026-10-21 holati):
+  kabinet `1338204998260984` "forum 2026" (Asia/Tashkent, USD, VISA *2692; status 9 = grace period,
+  $27.26 to‘lanmagan qoldiq); sahifa `1339727935893840` "Oquv markazlar forumi" (Lead Ads ToS qabul
+  qilingan); IG `17841477739867635` @oquvmarkazlarforumi — sahifa va kabinetga ulangan;
+  pixel `1767288624497407` "Forum capi" — BM ga tegishli, kabinetga ulangan.
+  Claude.ai Meta Ads MCP foydalanuvchi tokeni bilan ishlaydi va IG/ToS ni ko‘rmaydi; system user
+  tokeni (server/.env → META_SYSTEM_USER_TOKEN: ads_management, business_management, pages_manage_ads,
+  leads_retrieval) to‘g‘ri holatni ko‘rsatadi. Kampaniyalar faqat PAUSED yaratiladi, yoqish —
+  Nematulla tasdiqlagandan keyin.
+- Pixel saytda: index.html da PageView, arizada `Lead` (eventID). Server shu event_id bilan CAPI
+  `Lead` yuboradi (ph, fn/ln, country, external_id, fbp/fbc, IP, UA — SHA-256). .env: META_PIXEL_ID,
+  META_CAPI_TOKEN, META_TEST_EVENT_CODE (faqat Events Manager → Test events dagi haqiqiy kod;
+  o‘ylab topilgan kod bilan hodisa oddiy hodisa bo‘lib yoziladi). 2026-10-21 tekshiruvda 2 ta
+  test Lead pixelga tushgan (ism "Test Sinov").
+- amoCRM: https://sanjarrmm.amocrm.ru, voronka "forum hamkorlar" `11406294`, bosqich "YANGI LID"
+  `89356402` (.env: AMOCRM_BASE_URL, AMOCRM_TOKEN, ixtiyoriy AMOCRM_PIPELINE_ID/STATUS_ID). Har
+  arizada /leads/complex: bitim "Forum hamkor: {kompaniya}" + kontakt (ism, telefon) + kompaniya,
+  UTM_*/REFERRER/FBCLID maydonlari, teglar (forum-sayt, paket), eslatma (yo‘nalish, paket, izoh).
+  Telegram xabarida bitim havolasi. 2026-10-21 test bitimi `14903453` "rad etdi" ga o‘tkazilgan.
+- CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
+  uchalasini yangilash.
 
 ## 6. Qilinmagan / kutilayotgan ishlar
 

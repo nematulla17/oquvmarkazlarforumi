@@ -21,6 +21,11 @@
   };
   var VIDEO_MIN_WIDTH = CONFIG.videoMinWidth;
 
+  function cookie(name) {
+    var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -242,6 +247,12 @@
     payload.submitted_at = new Date().toISOString();
     payload.referrer = document.referrer || "";
     payload.user_agent = navigator.userAgent;
+    // Meta: pixel va CAPI bitta event_id bilan yuboriladi (dedup)
+    var eventId = "lead." + Date.now() + "." + Math.random().toString(36).slice(2, 10);
+    payload.event_id = eventId;
+    payload.external_id = window.META_XID || "";
+    payload.fbp = cookie("_fbp");
+    payload.fbc = cookie("_fbc");
 
     submitBtn.classList.add("is-loading");
     submitBtn.disabled = true;
@@ -261,6 +272,11 @@
     }).then(function () {
       done();
       track("lead_success", { package: payload.package, direction: payload.direction, source: payload.source });
+      try {
+        if (typeof window.fbq === "function") {
+          window.fbq("track", "Lead", { content_name: payload.package, content_category: payload.direction }, { eventID: eventId });
+        }
+      } catch (e2) { /* no-op */ }
       form.reset();
       phone.value = "+998 ";
       openModal();
