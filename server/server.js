@@ -58,7 +58,7 @@ async function handleLead(req, res) {
     direction: str(body.direction, 80), package: str(body.package, 30), comment: str(body.comment, 600),
     source: str(body.source, 40), page: str(body.page, 300), referrer: str(body.referrer, 300),
     utm_source: str(body.utm_source, 80), utm_medium: str(body.utm_medium, 80),
-    utm_campaign: str(body.utm_campaign, 80), utm_content: str(body.utm_content, 80),
+    utm_campaign: str(body.utm_campaign, 120), utm_content: str(body.utm_content, 120), utm_term: str(body.utm_term, 120),
     submitted_at: new Date().toISOString(), ip
   };
   const digits = lead.phone.replace(/\D/g, "");
@@ -87,9 +87,9 @@ async function sendAmo(l) {
   if (!AMO_URL || !AMO_TOKEN) return null;
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` };
   const track = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
-    ["UTM_CONTENT", l.utm_content], ["REFERRER", l.referrer], ["FBCLID", l.fbclid]]
+    ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["REFERRER", l.referrer], ["FBCLID", l.fbclid]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
-  const tags = ["forum-sayt", l.package, l.source !== "form" ? l.source : null].filter(Boolean).map((name) => ({ name }));
+  const tags = ["forum-sayt", l.package, l.utm_source || "organik", l.source !== "form" ? l.source : null].filter(Boolean).map((name) => ({ name }));
   const body = [{
     name: `Forum hamkor: ${l.company}`,
     pipeline_id: AMO_PIPELINE, status_id: AMO_STATUS,
@@ -150,7 +150,7 @@ async function sendCapi(l, m) {
 function formatTelegram(l) {
   const esc = (s) => String(s || "—").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
   const src = { form: "Forma", pdf: "PDF taqdimot", direction: "Yo‘nalish kartasi", package_bronze: "Bronze tugmasi", package_silver: "Silver tugmasi", package_gold: "Gold tugmasi" }[l.source] || l.source;
-  const utm = [l.utm_source, l.utm_medium, l.utm_campaign, l.utm_content].filter(Boolean).join(" / ");
+  const utm = [l.utm_source, l.utm_medium, l.utm_campaign, l.utm_content, l.utm_term].filter(Boolean).join(" / ");
   return [
     `🟢 <b>Yangi B2B lid — Forum 2026</b>`,
     ``,
@@ -178,7 +178,7 @@ async function sendTelegram(text) {
 }
 
 function appendCsv(l) {
-  const cols = ["submitted_at", "name", "company", "phone", "direction", "package", "comment", "source", "utm_source", "utm_medium", "utm_campaign", "utm_content", "page", "referrer", "ip"];
+  const cols = ["submitted_at", "name", "company", "phone", "direction", "package", "comment", "source", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "page", "referrer", "ip"];
   const q = (v) => `"${String(v || "").replace(/"/g, '""')}"`;
   if (!fs.existsSync(LEADS_CSV)) fs.writeFileSync(LEADS_CSV, "﻿" + cols.join(";") + "\n");
   fs.appendFileSync(LEADS_CSV, cols.map((c) => q(l[c])).join(";") + "\n");

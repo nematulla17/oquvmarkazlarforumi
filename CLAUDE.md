@@ -93,7 +93,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   `89356402` (.env: AMOCRM_BASE_URL, AMOCRM_TOKEN, ixtiyoriy AMOCRM_PIPELINE_ID/STATUS_ID). Har
   arizada /leads/complex: bitim "Forum hamkor: {kompaniya}" + kontakt (ism, telefon) + kompaniya,
   UTM_*/REFERRER/FBCLID maydonlari, teglar (forum-sayt, paket), eslatma (yo‘nalish, paket, izoh).
-  Telegram xabarida bitim havolasi. 2026-10-21 test bitimi `14903453` "rad etdi" ga o‘tkazilgan.
+  Telegram xabarida bitim havolasi. 2026-10-21 test bitimlari `14903453`, `14903601` "rad etdi" da.
+  Teglar: forum-sayt, paket, utm_source (yo‘q bo‘lsa "organik"). UTM sessionStorage da saqlanadi.
+- Meta reklama havolasi (ad creative `url_tags`):
+  `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
   uchalasini yangilash.
 

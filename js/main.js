@@ -94,7 +94,7 @@
   /* UTM va sahifa */
   try {
     var qs = new URLSearchParams(location.search);
-    ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(function (k) {
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"].forEach(function (k) {
       var v = qs.get(k) || sessionStorage.getItem(k) || "";
       if (qs.get(k)) sessionStorage.setItem(k, qs.get(k));
       var inp = form.elements[k]; if (inp) inp.value = v;
