@@ -74,10 +74,10 @@ lidlarni qabul qiladigan manzilni ko‘rsating (yoki `server/server.js` ni alohi
 - `assets/img/og-cover.png` — ijtimoiy tarmoqlar uchun 1200×630 rasm
 - FAQ dagi forum sanasi — aniq sana tasdiqlangach
 
-## GitHub Pages
+## Railway'ga chiqarish
 
-`main` ga har push qilinganda `.github/workflows/pages.yml` saytni GitHub Pages ga chiqaradi
-(`server/` va `docs/` papkalarisiz). Statik hostingda `/api/lead` yo‘q, shuning uchun forma
-arizani tayyor matn bilan Telegram kanaliga yo‘naltiradi. Lidlar to‘g‘ridan-to‘g‘ri guruhga
-tushishi uchun `server/server.js` ni VPS yoki Render/Railway da ishga tushirib, `index.html` ga
-`<script>window.LEAD_ENDPOINT = "https://<server-manzili>/api/lead";</script>` qo‘shing.
+1. https://railway.app → New Project → Deploy from GitHub repo → `nematulla17/oquvmarkazlarforumi`.
+2. Service → Variables: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (Railway `PORT` ni o‘zi beradi).
+3. Settings → Networking → Generate Domain. Sayt va `/api/lead` bitta manzilda ishlaydi.
+
+`railway.json` start buyrug‘i va healthcheck ni belgilaydi; `main` ga har push avtomatik deploy bo‘ladi.
