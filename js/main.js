@@ -204,6 +204,23 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closeModal(); });
   }
 
+  /* muvaffaqiyatli arizadan keyin Telegram kanalga o‘tkazish */
+  var CHANNEL_URL = "https://t.me/oquvmarkazlarforumi";
+  function redirectToChannel(sec) {
+    var note = $("#redirectNote");
+    var tick = function () {
+      if (sec <= 0) {
+        track("lead_redirect_tg", {});
+        window.location.href = CHANNEL_URL;
+        return;
+      }
+      if (note) note.textContent = sec + " soniyadan keyin kanalga o‘tasiz.";
+      sec -= 1;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  }
+
   function setStatus(msg, kind) {
     status.textContent = msg || "";
     status.classList.toggle("is-error", kind === "error");
@@ -247,6 +264,7 @@
       form.reset();
       phone.value = "+998 ";
       openModal();
+      redirectToChannel(3);
     }).catch(function (err) {
       done();
       track("lead_fallback", { message: String(err && err.message) });
