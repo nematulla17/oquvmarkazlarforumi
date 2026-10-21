@@ -52,12 +52,14 @@ server/server.js   Node 18+, tashqi kutubxonasiz: statik sayt + POST /api/lead
                    → Telegram guruh (HTML format) + server/leads.csv
 server/.env        TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (gitga kirmaydi)
 railway.json       Railway deploy: node server/server.js, healthcheck /
-assets/video/      hero.mp4 / hero.webm — hali qo‘shilmagan, poster ko‘rinadi
+assets/video/      hero.mp4 — fon (manba videoning 0:30–0:52, ovozsiz, 848px, ~1.7 MB, ≥768px da yuklanadi)
+                   forum-lavhalar.mp4 — to‘liq 100 s video ovozi bilan (~14 MB, preload=none)
+                   manba: Desktop/projectai/oquv markazlar forumi/2026-10-21 08.56.39.mp4 (849×478)
 assets/docs/       Biznes_hamkorlar_paketi_2026.pdf — lead magnet
 docs/screenshots/  desktop va mobil skrinshotlar
 ```
 
-Sahifa bo‘limlari: hero (video) → stats → nega shu auditoriya (chart) → Ko‘mak →
+Sahifa bo‘limlari: hero (video fon) + stats → #atmosfera (forum lavhalari videosi) → nega shu auditoriya (chart) → Ko‘mak →
 B2B yo‘nalishlar (kartani bossa forma to‘ladi) → paketlar + taqqoslash jadvali →
 hamkorlik yo‘li (4 bosqich) → startaplar → 4 qadam → ariza formasi → FAQ → final CTA → footer.
 Mobilda sticky CTA panel. Forma maydonlari: ism, kompaniya, telefon, yo‘nalish, paket
@@ -109,7 +111,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 1. Railway'ga deploy (yuqoridagi reja).
 2. Telegram guruh chat ID ni aniqlash: botni guruhga qo‘shib, xabar yozib,
    `https://api.telegram.org/bot<TOKEN>/getUpdates` dan `chat.id` olinadi; `.env` ga yoziladi.
-3. Hero videoni assets/video/hero.mp4 sifatida qo‘shish (1920×1080, ovozsiz, ≤5 MB).
+3. ✅ Hero video va forum lavhalari videosi qo‘shildi (2026-10-21). Manba 849×478 — yuqori
+   sifatli asl video bo‘lsa, almashtirish kerak.
 4. assets/img/og-cover.png (1200×630) — ijtimoiy tarmoq preview.
 5. Forum aniq sanasi tasdiqlangach FAQ dagi matnni yangilash.
 6. markazlarforumi.uz saytini o‘rganib, kerakli faktlarni qo‘shish.

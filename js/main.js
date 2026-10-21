@@ -14,7 +14,6 @@
     endpoint: window.LEAD_ENDPOINT || "/api/lead",
     videoMinWidth: 768,
     videoSources: [
-      { src: "assets/video/hero.webm", type: "video/webm" },
       { src: "assets/video/hero.mp4", type: "video/mp4" }
     ],
     pdf: "assets/docs/Biznes_hamkorlar_paketi_2026.pdf"
@@ -308,6 +307,10 @@
       }
     });
   });
+
+  /* ---------- forum lavhalari videosi ---------- */
+  var film = $(".film__video");
+  if (film) film.addEventListener("play", function () { track("film_play"); }, { once: true });
 
   /* ---------- sticky CTA: hero va forma ko‘rinmayotganda ---------- */
   var sticky = $("#stickyCta");
