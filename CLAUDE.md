@@ -79,14 +79,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - Claude dashboard (surat, Dashboard turi): https://claude.ai/artifact/LzYagDzVQZ6GkCw4x4XWCG — 22.09–21.10.2026
   ma'lumoti /api/dashboard dan JSON fayl qilib yuklangan (ism/telefonsiz), videolar 360p nusxa. Yangilash:
   /api/dashboard ni qayta olib, datasets/* fayllarini almashtirish.
-- Railway ishlamagan paytda (2026-10-21) lid serveri Mac'da fonda ishga tushirilgan (PORT=3020,
-  META_LEADGEN_BACKFILL_HOURS=1) — Mac uxlasa/sessiya tugasa to‘xtaydi.
+- Mac'dagi vaqtinchalik lid serveri 2026-10-21 da to‘xtatildi — lid poller endi Render'da ishlaydi.
 - Railway: hali ulanmagan. Reja: Railway → New Project → Deploy from GitHub repo →
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
 - Render (bepul, 2026-10-21 dan asosiy hosting): https://oquvmarkazlarforumi.onrender.com, servis
-  srv-dbca8fdg1s2s739id3hg (Frankfurt), `main` ga push → auto deploy. Maxfiy o'zgaruvchilar Render
-  panelida (Environment) qo'lda qo'shilgan; API orqali faqat maxfiy bo'lmaganlari. Uxlamasligi uchun
+  srv-dbca8fdg1s2s739id3hg (Frankfurt), `main` ga push → auto deploy. Barcha o'zgaruvchilar Render Environment'da
+  (.env dan, Nematulla ruxsati bilan API orqali). Dashboard login forum / parol .env da. Uxlamasligi uchun
   .github/workflows/keepalive.yml har 10 daqiqada ping qiladi. Dashboard: /dashboard (Basic auth).
 - Lokal: Desktop/projectai/yangi oquvmarkazlarforumi (git clone qilinadi).
 - Meta reklama (BM "oquvmarkazlarforumi" `1311775053970451`, 2026-10-21 holati):
