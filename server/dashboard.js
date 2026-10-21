@@ -45,6 +45,24 @@ function env() {
   };
 }
 
+/* ---------- USD → so‘m kursi: Markaziy bank (cbu.uz), 6 soatda bir yangilanadi ----------
+   CBU ishlamasa oxirgi ma'lum kurs, u ham bo‘lmasa USD_UZS (env) ishlatiladi. */
+let fx = null; // { rate, date, t }
+async function usdRate(fallback) {
+  if (fx && Date.now() - fx.t < 6 * 3600 * 1000) return fx;
+  try {
+    const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/", { signal: AbortSignal.timeout(8000) });
+    const row = (await r.json())[0] || {};
+    const rate = Number(row.Rate);
+    if (!r.ok || !(rate > 1000)) throw new Error("CBU javobi noto‘g‘ri");
+    fx = { rate, date: row.Date || "", source: "cbu.uz", t: Date.now() };
+  } catch (err) {
+    console.error("USD kursi:", err.message);
+    if (!fx) return { rate: fallback, date: "", source: "USD_UZS (zaxira)" };
+  }
+  return fx;
+}
+
 /* ---------- HTTP kirish nuqtasi: true qaytarsa so‘rov shu yerda ishlandi ---------- */
 async function handle(req, res) {
   const url = new URL(req.url, "http://x");
@@ -74,7 +92,9 @@ async function handle(req, res) {
   try {
     if (p === "/api/dashboard") {
       const { from, to } = parseRange(url.searchParams.get("from"), url.searchParams.get("to"));
-      const data = await cached(`dash:${from}:${to}`, CACHE_MS, () => buildDashboard(from, to, e));
+      const rate = await usdRate(e.usdUzs);
+      e.usdUzs = rate.rate; e.usdUzsDate = rate.date; e.usdUzsSource = rate.source;
+      const data = await cached(`dash:${from}:${to}:${rate.date}`, CACHE_MS, () => buildDashboard(from, to, e));
       sendJson(res, 200, data);
     } else if (p === "/api/dashboard/video") {
       const ids = [url.searchParams.get("id"), url.searchParams.get("alt")].filter((x) => /^\d{5,25}$/.test(x || ""));
@@ -395,7 +415,7 @@ async function buildDashboard(from, to, e) {
 
   const spend = meta ? meta.total.spend : 0;
   return {
-    ok: true, from, to, generatedAt: new Date().toISOString(), usdUzs: e.usdUzs, amoUrl: e.amoUrl, errors,
+    ok: true, from, to, generatedAt: new Date().toISOString(), usdUzs: e.usdUzs, usdUzsDate: e.usdUzsDate || "", usdUzsSource: e.usdUzsSource || "", amoUrl: e.amoUrl, errors,
     meta: meta ? { ...meta.total, cpl: meta.total.leads ? spend / meta.total.leads : null } : null,
     crm: { ...crmTotals, conversion: crmTotals.leads ? crmTotals.won / crmTotals.leads : null, cac: crmTotals.won ? spend / crmTotals.won : null },
     daily, funnel, stages: STAGES.map((s) => ({ id: s.id, name: s.name, rank: s.rank })), stageCounts,

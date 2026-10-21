@@ -83,7 +83,7 @@
   function renderKpis(d) {
     const m = d.meta || {}, c = d.crm;
     $("#kpi-meta").innerHTML = d.meta ? [
-      tile("Sarf", usd(m.spend), uzs(m.spend * d.usdUzs) + ` (1$ = ${num(d.usdUzs)})`, true),
+      tile("Sarf", usd(m.spend), uzs(m.spend * d.usdUzs) + ` (1$ = ${num(d.usdUzs)} so‘m${d.usdUzsDate ? ", CBU " + d.usdUzsDate : ""})`, true),
       tile("Ko‘rishlar (impressions)", num(m.impressions), "CPM " + usd(m.cpm)),
       tile("Qamrov (reach)", num(m.reach)),
       tile("Kliklar", num(m.clicks)),
