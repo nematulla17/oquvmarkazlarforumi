@@ -148,7 +148,7 @@ h3 { font-size: 1.05rem; letter-spacing: -.01em; }
 .hero { position: relative; color: #fff; background: var(--green-900); overflow: hidden; }
 .hero__media { position: absolute; inset: 0; }
 .hero__video { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.hero__shade { position: absolute; inset: 0; background: rgba(6,32,16,.66); }
+.hero__shade { position: absolute; inset: 0; background: rgba(6,32,16,.74); }
 .hero__inner { position: relative; display: grid; gap: 40px; padding-block: 48px 40px; }
 .hero__kicker { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--lime); }
 .hero__title { margin-top: 18px; max-width: 15ch; }

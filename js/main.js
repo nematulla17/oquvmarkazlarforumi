@@ -14,7 +14,7 @@
     endpoint: window.LEAD_ENDPOINT || "/api/lead",
     videoMinWidth: 768,
     videoSources: [
-      { src: "assets/video/hero.mp4", type: "video/mp4" }
+      { src: "assets/video/forum-lavhalar.mp4", type: "video/mp4" }
     ],
     pdf: "assets/docs/Biznes_hamkorlar_paketi_2026.pdf"
   };
