@@ -84,6 +84,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - Railway: hali ulanmagan. Reja: Railway → New Project → Deploy from GitHub repo →
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
+- Render (bepul, 2026-10-21 dan asosiy hosting): https://oquvmarkazlarforumi.onrender.com, servis
+  srv-dbca8fdg1s2s739id3hg (Frankfurt), `main` ga push → auto deploy. Maxfiy o'zgaruvchilar Render
+  panelida (Environment) qo'lda qo'shilgan; API orqali faqat maxfiy bo'lmaganlari. Uxlamasligi uchun
+  .github/workflows/keepalive.yml har 10 daqiqada ping qiladi. Dashboard: /dashboard (Basic auth).
 - Lokal: Desktop/projectai/yangi oquvmarkazlarforumi (git clone qilinadi).
 - Meta reklama (BM "oquvmarkazlarforumi" `1311775053970451`, 2026-10-21 holati):
   kabinet `1338204998260984` "forum 2026" (Asia/Tashkent, USD, VISA *2692; status 9 = grace period,

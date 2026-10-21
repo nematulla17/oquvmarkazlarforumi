@@ -1,0 +1,12 @@
+# Render free servisi 15 daqiqa so'rovsiz uxlab qoladi; lid poller to'xtamasligi uchun har 10 daqiqada ping.
+name: keepalive
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - run: curl -fsS -m 90 -o /dev/null -w "%{http_code}\n" https://oquvmarkazlarforumi.onrender.com/ || true
