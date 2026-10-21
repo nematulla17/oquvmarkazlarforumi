@@ -120,6 +120,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Ibragimov). E'lon yaratilmagan (2026-10-21): system user ilovasi "Forum APP" `2096149907690629`
   dev_mode → kreativ yaratib bo‘lmaydi; Claude Meta Ads konnektorida forum sahifasiga
   pages_manage_ads yo‘q. Ibrat farzandlari bilan partnership uchun ularning IG ID + ruxsat kerak.
+- 2026-10-21 holati (Ads Manager orqali, Chrome): barcha faol e'lonlar ("1", "ibrat bilan", "registon",
+  "2", "Turin", "oquv markaz") forma v3 `2652969721821068` ga o‘tkazildi (yakuniy ekranda menejer raqami
+  +998 55 515 73 91). Lead nurturing (Messenger + Instagram) yoqilgan, salomlashuv: "Arizangiz keldi…
+  +998 55 515 73 91 raqamidan qo‘ng‘iroq qiladi…", FAQ: narx / sana-joy / paketlar (javoblari bilan).
+  "3" kampaniyasi o‘chiq — tegilmagan. Spiker e'loni `120255874208880150` (kampaniya 120255873473240150)
+  — Ibrat Farzandlari bilan PARTNERSHIP (sahifa 109583008861183, IG @ibrat.farzandlari, ruxsat bor).
+  Kreativ/forma almashtirish faqat Ads Manager UI orqali (system user ilovasi dev_mode).
 - Meta reklama havolasi (ad creative `url_tags`):
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
