@@ -103,9 +103,15 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Sayt jonli bo‘lmaguncha kampaniya PAUSED turadi (havola ishlamaydi).
 - Instant formalar (sahifa): "form 1 hamkorlar" `4447597638826376` (eski, 591 lid, maxfiylik havolasi
   buzuq), v2 `3318431208359646` (optimallashtirilgan: ism, telefon, kompaniya, yo‘nalish; RU_RU;
-  maxfiylik markazlarforumi.uz/maxfiylik). Uzbek locale Meta'da yo‘q. Server META_LEADGEN_FORM_IDS dagi
-  formalardan har 2 daqiqada lid oladi → amoCRM (teg `meta-forma`, UTM: facebook/instant_form/
-  kampaniya/e'lon/guruh, UTM_REFERRER=fb_lead:<id> takrorlanmaslik uchun) + Telegram.
+  maxfiylik markazlarforumi.uz/maxfiylik). Uzbek locale Meta'da yo‘q. Boshqa formalar: "hamkorlar uchun"
+  `3182290488627819`, "yangi12/10/26" `985828477118225`, "Instant forma v1" `1413183077645812`.
+- amoCRM'ning O‘ZINING Facebook integratsiyasi (source 11683) barcha forma lidlarini "forum hamkorlar"
+  ga "Facebook №<lead_id>" nomi, `fb<form_id>` va `#forum` teglari bilan ochadi (UTM/javoblarsiz).
+  Bizning server (META_LEADGEN_FORM_IDS = 5 ta forma) har 2 daqiqada lidlarni olib, o‘sha native
+  bitimni BOYITADI: UTM_SOURCE=facebook, MEDIUM=instant_form, CAMPAIGN/CONTENT/TERM = kampaniya/e'lon/
+  guruh, UTM_REFERRER=fb_lead:<id> (takrorlanmaslik belgisi), teglar meta-forma+facebook+paket, javoblar
+  eslatmasi; Telegram (faqat server ishga tushgandan keyingi lidlar). 15 daqiqada native bitim
+  topilmasa — o‘zimiz ochamiz. Dublikat ochilmaydi (2026-10-21 da form 1 bo‘yicha 7 lid bilan sinaldi).
 - Kampaniya `120255873473240150` "Forum 2026 | Hamkorlar | Instant forma" (CBO $10/kun), guruh
   `120255873601880150` (UZ, 25+, LEAD_GENERATION, ON_AD), video `2509950506160819` (spiker Sherzod
   Ibragimov). E'lon yaratilmagan (2026-10-21): system user ilovasi "Forum APP" `2096149907690629`

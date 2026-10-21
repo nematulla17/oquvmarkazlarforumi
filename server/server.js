@@ -85,63 +85,128 @@ async function handleLead(req, res) {
   json(res, 200, { ok: true });
 }
 
-/* ---------- Meta instant forma lidlari: har N soniyada olib, amoCRM + Telegram ga ----------
-   Takrorlanmaslik: amoCRM dagi UTM_REFERRER = "fb_lead:<id>" bo‘yicha tekshiriladi, shuning uchun
-   server qayta ishga tushsa ham (Railway deploy) bir lid ikki marta tushmaydi. */
+/* ---------- Meta instant forma lidlari → amoCRM + Telegram ----------
+   amoCRM'ning o‘z Facebook integratsiyasi (source 11683) har formadan "Facebook №<lead_id>" bitimini
+   "forum hamkorlar" voronkasiga ochadi, lekin UTM va javoblarsiz. Shu sababli:
+   - native bitim topilsa: UTM (kampaniya/guruh/e'lon), teglar va javoblar eslatmasi qo‘shiladi;
+   - 15 daqiqada topilmasa: bitimni o‘zimiz ochamiz (sendAmo);
+   - UTM_REFERRER = "fb_lead:<id>" belgisi takror ishlov berilmasligini kafolatlaydi (restartda ham). */
 const seenLeads = new Set();
-let leadgenSince = Math.floor(Date.now() / 1000) - 3 * 24 * 3600; // birinchi aylanishda oxirgi 3 kun
+const formQuestions = new Map(); // form_id -> { key: {type,label} }
+const BOOT_TS = Date.now();
+let leadgenSince = Math.floor(Date.now() / 1000) - Number(process.env.META_LEADGEN_BACKFILL_HOURS || 72) * 3600; // birinchi aylanishda
+const NATIVE_WAIT_MS = 15 * 60 * 1000;
+
+async function graph(pathAndQuery) {
+  const sep = pathAndQuery.includes("?") ? "&" : "?";
+  const r = await fetch(`https://graph.facebook.com/v23.0/${pathAndQuery}${sep}access_token=${encodeURIComponent(META_TOKEN)}`, { signal: AbortSignal.timeout(15000) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(JSON.stringify(d).slice(0, 300));
+  return d;
+}
 
 async function pollLeadgen() {
   const from = leadgenSince;
-  leadgenSince = Math.floor(Date.now() / 1000) - 600; // keyingi aylanishlarda 10 daqiqalik ustma-ust oyna
+  leadgenSince = Math.floor(Date.now() / 1000) - 3600; // keyingi aylanishlarda 1 soatlik ustma-ust oyna
   for (const form of LEADGEN_FORMS) {
-    let url = `https://graph.facebook.com/v23.0/${form}/leads?fields=id,created_time,field_data,ad_name,adset_name,campaign_name,platform&limit=100` +
-      `&filtering=${encodeURIComponent(JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: from }]))}&access_token=${encodeURIComponent(META_TOKEN)}`;
-    while (url) {
-      let page;
-      try {
-        const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
-        page = await r.json();
-        if (!r.ok) { console.error("Leadgen xato", form, JSON.stringify(page).slice(0, 300)); break; }
-      } catch (e) { console.error("Leadgen so‘rov", e.message); break; }
-      for (const fl of page.data || []) await handleInstantLead(fl, form);
-      url = page.paging && page.paging.next;
-    }
+    try {
+      if (!formQuestions.has(form)) {
+        const fd = await graph(`${form}?fields=name,questions{key,type,label}`);
+        const q = {}; (fd.questions || []).forEach((x) => { q[x.key] = { type: x.type, label: x.label }; });
+        formQuestions.set(form, { name: fd.name || form, q });
+      }
+      let next = `${form}/leads?fields=id,created_time,field_data,ad_name,adset_name,campaign_name,platform&limit=100` +
+        `&filtering=${encodeURIComponent(JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: from }]))}`;
+      while (next) {
+        const page = await graph(next);
+        for (const fl of page.data || []) await handleInstantLead(fl, form);
+        next = page.paging && page.paging.next ? page.paging.next.replace(/^https:\/\/graph\.facebook\.com\/v[\d.]+\//, "").replace(/&?access_token=[^&]*/, "") : null;
+      }
+    } catch (e) { console.error("Leadgen", form, e.message); }
   }
 }
 
 async function handleInstantLead(fl, form) {
   if (seenLeads.has(fl.id)) return;
-  if (await amoHasFbLead(fl.id)) { seenLeads.add(fl.id); return; }
-  const f = {};
-  (fl.field_data || []).forEach((x) => { f[x.name] = (x.values || []).join(", "); });
+  const meta = formQuestions.get(form) || { name: form, q: {} };
+  const byType = {}, answers = [];
+  (fl.field_data || []).forEach((x) => {
+    const v = (x.values || []).join(", "); const q = meta.q[x.name] || {};
+    if (q.type && q.type !== "CUSTOM") byType[q.type] = v;
+    else if (x.name !== "inbox_url" && v) answers.push([q.label || x.name, v, x.name]);
+  });
+  const custom = Object.fromEntries(answers.map(([, v, k]) => [k, v]));
   const lead = {
-    name: str(f.full_name || [f.first_name, f.last_name].filter(Boolean).join(" ") || "—", 80),
-    company: str(f.company_name || f.company || "—", 120),
-    phone: str(f.phone_number || f.phone || "", 30),
-    direction: str(f.yonalish, 80), package: str(f.paket, 30), comment: "",
-    source: "instant_form", page: `Meta instant forma ${form} (${fl.platform || "fb/ig"})`, referrer: "",
+    name: str(byType.FULL_NAME || [byType.FIRST_NAME, byType.LAST_NAME].filter(Boolean).join(" ") || "—", 80),
+    company: str(byType.COMPANY_NAME || "—", 120), phone: str(byType.PHONE || "", 30),
+    direction: str(custom.yonalish, 80), package: str(custom.paket, 30), comment: "",
+    source: "instant_form", page: `Meta forma: ${meta.name} (${fl.platform || "fb/ig"})`, referrer: "",
     utm_source: "facebook", utm_medium: "instant_form",
     utm_campaign: str(fl.campaign_name, 120), utm_content: str(fl.ad_name, 120), utm_term: str(fl.adset_name, 120),
     submitted_at: new Date(fl.created_time || Date.now()).toISOString(), ip: "", fb_lead_id: fl.id
   };
-  appendCsv(lead);
-  lead.amo_id = await sendAmo(lead);
-  if (!lead.amo_id && AMO_TOKEN) return; // amoCRM ishlamasa keyingi aylanishda qayta urinamiz
+  const found = await amoFindFbLead(fl.id);
+  if (found === "error") return;                       // amoCRM javob bermadi — keyingi aylanishda
+  if (found && found.marked) { seenLeads.add(fl.id); return; } // allaqachon ishlangan
+  if (found) {
+    lead.amo_id = found.id;
+    if (!(await amoEnrich(found.id, lead, meta.name, answers, byType.EMAIL))) return;
+  } else {
+    if (Date.now() - Date.parse(lead.submitted_at) < NATIVE_WAIT_MS) return; // native integratsiyani kutamiz
+    lead.amo_id = await sendAmo(lead);
+    if (!lead.amo_id && AMO_TOKEN) return;
+    await amoNote(lead.amo_id, formatAnswers(meta.name, answers, byType.EMAIL));
+  }
   seenLeads.add(fl.id);
-  if (BOT_TOKEN && CHAT_ID) await sendTelegram(formatTelegram(lead));
+  appendCsv(lead);
+  // backfill paytida eski lidlar bilan guruhni to‘ldirib yubormaslik uchun: faqat server ishga tushgandan keyingilar
+  if (BOT_TOKEN && CHAT_ID && Date.parse(lead.submitted_at) > BOOT_TS - 30 * 60 * 1000) await sendTelegram(formatTelegram(lead));
 }
 
-async function amoHasFbLead(id) {
-  if (!AMO_URL || !AMO_TOKEN) return false;
+function formatAnswers(formName, answers, email) {
+  return [`Meta forma: ${formName}`, email ? `Email: ${email}` : null, ...answers.map(([l, v]) => `${l}: ${v}`)].filter(Boolean).join("\n");
+}
+
+// null — topilmadi, "error" — so‘rov xatosi, {id, marked} — topildi
+async function amoFindFbLead(id) {
+  if (!AMO_URL || !AMO_TOKEN) return null;
   try {
-    const r = await fetch(`${AMO_URL}/api/v4/leads?query=${encodeURIComponent(`fb_lead:${id}`)}&limit=1`, {
+    const r = await fetch(`${AMO_URL}/api/v4/leads?query=${encodeURIComponent(id)}&limit=5`, {
       headers: { Authorization: `Bearer ${AMO_TOKEN}` }, signal: AbortSignal.timeout(8000)
     });
-    if (r.status === 204) return false;
-    const d = await r.json();
-    return ((d._embedded && d._embedded.leads) || []).length > 0;
-  } catch (e) { console.error("amoCRM qidiruv", e.message); return true; } // shubhada takrorlamaymiz
+    if (r.status === 204) return null;
+    if (!r.ok) return "error";
+    const leads = ((await r.json())._embedded || {}).leads || [];
+    const hit = leads.find((l) => (l.custom_fields_values || []).some((f) => f.field_code === "UTM_REFERRER" && f.values.some((v) => v.value === `fb_lead:${id}`)))
+      || leads.find((l) => String(l.name || "").includes(id));
+    if (!hit) return null;
+    const marked = (hit.custom_fields_values || []).some((f) => f.field_code === "UTM_REFERRER");
+    return { id: hit.id, marked };
+  } catch (e) { console.error("amoCRM qidiruv", e.message); return "error"; }
+}
+
+async function amoEnrich(amoId, l, formName, answers, email) {
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` };
+  const fields = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
+    ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["UTM_REFERRER", `fb_lead:${l.fb_lead_id}`]]
+    .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
+  const tags_to_add = ["meta-forma", "facebook", l.package].filter(Boolean).map((name) => ({ name }));
+  try {
+    const r = await fetch(`${AMO_URL}/api/v4/leads/${amoId}`, {
+      method: "PATCH", headers, body: JSON.stringify({ custom_fields_values: fields, tags_to_add }), signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) { console.error("amoCRM boyitish", r.status, (await r.text()).slice(0, 300)); return false; }
+  } catch (e) { console.error("amoCRM boyitish", e.message); return false; }
+  await amoNote(amoId, formatAnswers(formName, answers, email));
+  return true;
+}
+
+async function amoNote(amoId, text) {
+  if (!amoId || !text) return;
+  await fetch(`${AMO_URL}/api/v4/leads/${amoId}/notes`, {
+    method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` },
+    body: JSON.stringify([{ note_type: "common", params: { text } }]), signal: AbortSignal.timeout(8000)
+  }).catch((e) => console.error("amoCRM eslatma", e.message));
 }
 
 if (META_TOKEN && LEADGEN_FORMS.length) {
