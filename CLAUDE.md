@@ -76,6 +76,11 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 
 - GitHub: https://github.com/nematulla17/oquvmarkazlarforumi (public, branch `main`).
 - Claude artifact (statik preview): https://claude.ai/artifact/98PcomhnkonQ8PFgsdERqz
+- Claude dashboard (surat, Dashboard turi): https://claude.ai/artifact/LzYagDzVQZ6GkCw4x4XWCG — 22.09–21.10.2026
+  ma'lumoti /api/dashboard dan JSON fayl qilib yuklangan (ism/telefonsiz), videolar 360p nusxa. Yangilash:
+  /api/dashboard ni qayta olib, datasets/* fayllarini almashtirish.
+- Railway ishlamagan paytda (2026-10-21) lid serveri Mac'da fonda ishga tushirilgan (PORT=3020,
+  META_LEADGEN_BACKFILL_HOURS=1) — Mac uxlasa/sessiya tugasa to‘xtaydi.
 - Railway: hali ulanmagan. Reja: Railway → New Project → Deploy from GitHub repo →
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
