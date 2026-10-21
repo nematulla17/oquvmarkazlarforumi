@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <!-- Video yuklanmaguncha / video bo‘lmaganda ko‘rinadigan fon -->
+  <rect width="1600" height="900" fill="#0B3A1A"/>
+  <ellipse cx="1180" cy="240" rx="640" ry="340" fill="#15712B" opacity="0.6"/>
+  <ellipse cx="1380" cy="720" rx="560" ry="280" fill="#1D9A33" opacity="0.35"/>
+  <ellipse cx="250" cy="880" rx="760" ry="240" fill="#0F4D22" opacity="0.9"/>
+  <g fill="#A7F000" opacity="0.10">
+    <circle cx="1240" cy="300" r="190"/>
+    <circle cx="1240" cy="300" r="120" fill="#0B3A1A" opacity="1"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="1">
+    <path d="M0 620 Q 800 540 1600 640"/><path d="M0 680 Q 800 600 1600 700"/><path d="M0 740 Q 800 660 1600 760"/>
+  </g>
+</svg>

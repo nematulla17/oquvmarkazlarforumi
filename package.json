@@ -1,0 +1,11 @@
+{
+  "name": "oquvmarkazlarforumi-b2b-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "O‘zbekiston o‘quv markazlari forumi — biznes hamkorlar uchun lead generation landing",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "engines": { "node": ">=18" }
+}
