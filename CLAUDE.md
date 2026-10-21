@@ -83,6 +83,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - Railway: hali ulanmagan. Reja: Railway → New Project → Deploy from GitHub repo →
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
+- Telegram lid xabarlari hozircha Nematullaning shaxsiy chatiga (TELEGRAM_CHAT_ID=768318899) — sotuv guruhi
+  qo‘shilgach guruh ID siga almashtiriladi.
 - Render (bepul, 2026-10-21 dan asosiy hosting): https://oquvmarkazlarforumi.onrender.com, servis
   srv-dbca8fdg1s2s739id3hg (Frankfurt). DIQQAT: repo ochiq URL orqali ulangan (GitHub ilovasisiz), shuning uchun
   push'dan keyin auto deploy ishlamayapti — har push'dan keyin Render API bilan deploy qilinadi
