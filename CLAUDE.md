@@ -84,7 +84,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
 - Render (bepul, 2026-10-21 dan asosiy hosting): https://oquvmarkazlarforumi.onrender.com, servis
-  srv-dbca8fdg1s2s739id3hg (Frankfurt), `main` ga push → auto deploy. Barcha o'zgaruvchilar Render Environment'da
+  srv-dbca8fdg1s2s739id3hg (Frankfurt). DIQQAT: repo ochiq URL orqali ulangan (GitHub ilovasisiz), shuning uchun
+  push'dan keyin auto deploy ishlamayapti — har push'dan keyin Render API bilan deploy qilinadi
+  (POST /v1/services/<id>/deploys, kalit .env RENDER_API_KEY). Doimiy yechim: Render'da repo'ni GitHub
+  akkaunti orqali qayta ulash. Barcha o'zgaruvchilar Render Environment'da
   (.env dan, Nematulla ruxsati bilan API orqali). Dashboard login forum / parol .env da. Uxlamasligi uchun
   .github/workflows/keepalive.yml har 10 daqiqada ping qiladi. Dashboard: /dashboard (Basic auth).
 - Lokal: Desktop/projectai/yangi oquvmarkazlarforumi (git clone qilinadi).
