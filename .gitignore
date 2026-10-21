@@ -2,3 +2,7 @@ server/.env
 server/leads.csv
 node_modules/
 .DS_Store
+
+# reklama kreativlari (katta media)
+kreativlar/*
+!kreativlar/README.md
