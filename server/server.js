@@ -24,6 +24,9 @@ const AMO_URL = (process.env.AMOCRM_BASE_URL || "").replace(/\/+$/, "");
 const AMO_TOKEN = process.env.AMOCRM_TOKEN || "";
 const AMO_PIPELINE = Number(process.env.AMOCRM_PIPELINE_ID || 11406294); // "forum hamkorlar"
 const AMO_STATUS = Number(process.env.AMOCRM_STATUS_ID || 89356402);     // "YANGI LID"
+const META_TOKEN = process.env.META_SYSTEM_USER_TOKEN || "";
+const LEADGEN_FORMS = (process.env.META_LEADGEN_FORM_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+const LEADGEN_POLL_MS = Number(process.env.META_LEADGEN_POLL_SEC || 120) * 1000;
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -82,14 +85,80 @@ async function handleLead(req, res) {
   json(res, 200, { ok: true });
 }
 
+/* ---------- Meta instant forma lidlari: har N soniyada olib, amoCRM + Telegram ga ----------
+   Takrorlanmaslik: amoCRM dagi UTM_REFERRER = "fb_lead:<id>" bo‘yicha tekshiriladi, shuning uchun
+   server qayta ishga tushsa ham (Railway deploy) bir lid ikki marta tushmaydi. */
+const seenLeads = new Set();
+let leadgenSince = Math.floor(Date.now() / 1000) - 3 * 24 * 3600; // birinchi aylanishda oxirgi 3 kun
+
+async function pollLeadgen() {
+  const from = leadgenSince;
+  leadgenSince = Math.floor(Date.now() / 1000) - 600; // keyingi aylanishlarda 10 daqiqalik ustma-ust oyna
+  for (const form of LEADGEN_FORMS) {
+    let url = `https://graph.facebook.com/v23.0/${form}/leads?fields=id,created_time,field_data,ad_name,adset_name,campaign_name,platform&limit=100` +
+      `&filtering=${encodeURIComponent(JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: from }]))}&access_token=${encodeURIComponent(META_TOKEN)}`;
+    while (url) {
+      let page;
+      try {
+        const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        page = await r.json();
+        if (!r.ok) { console.error("Leadgen xato", form, JSON.stringify(page).slice(0, 300)); break; }
+      } catch (e) { console.error("Leadgen so‘rov", e.message); break; }
+      for (const fl of page.data || []) await handleInstantLead(fl, form);
+      url = page.paging && page.paging.next;
+    }
+  }
+}
+
+async function handleInstantLead(fl, form) {
+  if (seenLeads.has(fl.id)) return;
+  if (await amoHasFbLead(fl.id)) { seenLeads.add(fl.id); return; }
+  const f = {};
+  (fl.field_data || []).forEach((x) => { f[x.name] = (x.values || []).join(", "); });
+  const lead = {
+    name: str(f.full_name || [f.first_name, f.last_name].filter(Boolean).join(" ") || "—", 80),
+    company: str(f.company_name || f.company || "—", 120),
+    phone: str(f.phone_number || f.phone || "", 30),
+    direction: str(f.yonalish, 80), package: str(f.paket, 30), comment: "",
+    source: "instant_form", page: `Meta instant forma ${form} (${fl.platform || "fb/ig"})`, referrer: "",
+    utm_source: "facebook", utm_medium: "instant_form",
+    utm_campaign: str(fl.campaign_name, 120), utm_content: str(fl.ad_name, 120), utm_term: str(fl.adset_name, 120),
+    submitted_at: new Date(fl.created_time || Date.now()).toISOString(), ip: "", fb_lead_id: fl.id
+  };
+  appendCsv(lead);
+  lead.amo_id = await sendAmo(lead);
+  if (!lead.amo_id && AMO_TOKEN) return; // amoCRM ishlamasa keyingi aylanishda qayta urinamiz
+  seenLeads.add(fl.id);
+  if (BOT_TOKEN && CHAT_ID) await sendTelegram(formatTelegram(lead));
+}
+
+async function amoHasFbLead(id) {
+  if (!AMO_URL || !AMO_TOKEN) return false;
+  try {
+    const r = await fetch(`${AMO_URL}/api/v4/leads?query=${encodeURIComponent(`fb_lead:${id}`)}&limit=1`, {
+      headers: { Authorization: `Bearer ${AMO_TOKEN}` }, signal: AbortSignal.timeout(8000)
+    });
+    if (r.status === 204) return false;
+    const d = await r.json();
+    return ((d._embedded && d._embedded.leads) || []).length > 0;
+  } catch (e) { console.error("amoCRM qidiruv", e.message); return true; } // shubhada takrorlamaymiz
+}
+
+if (META_TOKEN && LEADGEN_FORMS.length) {
+  const loop = () => pollLeadgen().catch((e) => console.error("Leadgen", e.message)).finally(() => setTimeout(loop, LEADGEN_POLL_MS));
+  setTimeout(loop, 5000);
+}
+
 /* ---------- amoCRM: "forum hamkorlar" voronkasiga bitim + kontakt + kompaniya ---------- */
 async function sendAmo(l) {
   if (!AMO_URL || !AMO_TOKEN) return null;
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` };
   const track = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
-    ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["REFERRER", l.referrer], ["FBCLID", l.fbclid]]
+    ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["REFERRER", l.referrer], ["FBCLID", l.fbclid],
+    ["UTM_REFERRER", l.fb_lead_id ? `fb_lead:${l.fb_lead_id}` : ""]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
-  const tags = ["forum-sayt", l.package, l.utm_source || "organik", l.source !== "form" ? l.source : null].filter(Boolean).map((name) => ({ name }));
+  const origin = l.source === "instant_form" ? "meta-forma" : "forum-sayt";
+  const tags = [origin, l.package, l.utm_source || "organik", !["form", "instant_form"].includes(l.source) ? l.source : null].filter(Boolean).map((name) => ({ name }));
   const body = [{
     name: `Forum hamkor: ${l.company}`,
     pipeline_id: AMO_PIPELINE, status_id: AMO_STATUS,
@@ -149,7 +218,7 @@ async function sendCapi(l, m) {
 
 function formatTelegram(l) {
   const esc = (s) => String(s || "—").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
-  const src = { form: "Forma", pdf: "PDF taqdimot", direction: "Yo‘nalish kartasi", package_bronze: "Bronze tugmasi", package_silver: "Silver tugmasi", package_gold: "Gold tugmasi" }[l.source] || l.source;
+  const src = { form: "Forma", pdf: "PDF taqdimot", direction: "Yo‘nalish kartasi", package_bronze: "Bronze tugmasi", package_silver: "Silver tugmasi", package_gold: "Gold tugmasi", instant_form: "Meta instant forma" }[l.source] || l.source;
   const utm = [l.utm_source, l.utm_medium, l.utm_campaign, l.utm_content, l.utm_term].filter(Boolean).join(" / ");
   return [
     `🟢 <b>Yangi B2B lid — Forum 2026</b>`,

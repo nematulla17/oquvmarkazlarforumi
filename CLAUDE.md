@@ -101,6 +101,16 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   `kreativlar/yangi/` ga video tushsa: Ads Manager'ga yuklash → kampaniya yaratish → DARHOL yoqish
   (alohida tasdiq shart emas), keyin hisobot. Fayl `kreativlar/yuklangan/` ga ko‘chiriladi.
   Sayt jonli bo‘lmaguncha kampaniya PAUSED turadi (havola ishlamaydi).
+- Instant formalar (sahifa): "form 1 hamkorlar" `4447597638826376` (eski, 591 lid, maxfiylik havolasi
+  buzuq), v2 `3318431208359646` (optimallashtirilgan: ism, telefon, kompaniya, yo‘nalish; RU_RU;
+  maxfiylik markazlarforumi.uz/maxfiylik). Uzbek locale Meta'da yo‘q. Server META_LEADGEN_FORM_IDS dagi
+  formalardan har 2 daqiqada lid oladi → amoCRM (teg `meta-forma`, UTM: facebook/instant_form/
+  kampaniya/e'lon/guruh, UTM_REFERRER=fb_lead:<id> takrorlanmaslik uchun) + Telegram.
+- Kampaniya `120255873473240150` "Forum 2026 | Hamkorlar | Instant forma" (CBO $10/kun), guruh
+  `120255873601880150` (UZ, 25+, LEAD_GENERATION, ON_AD), video `2509950506160819` (spiker Sherzod
+  Ibragimov). E'lon yaratilmagan (2026-10-21): system user ilovasi "Forum APP" `2096149907690629`
+  dev_mode → kreativ yaratib bo‘lmaydi; Claude Meta Ads konnektorida forum sahifasiga
+  pages_manage_ads yo‘q. Ibrat farzandlari bilan partnership uchun ularning IG ID + ruxsat kerak.
 - Meta reklama havolasi (ad creative `url_tags`):
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
