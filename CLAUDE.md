@@ -100,6 +100,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   UTM_*/REFERRER/FBCLID maydonlari, teglar (forum-sayt, paket), eslatma (yo‘nalish, paket, izoh).
   Telegram xabarida bitim havolasi. 2026-10-21 test bitimlari `14903453`, `14903601` "rad etdi" da.
   Teglar: forum-sayt, paket, utm_source (yo‘q bo‘lsa "organik"). UTM sessionStorage da saqlanadi.
+- Dublikat qoidasi (`markDuplicate`, sayt va instant forma lidlari uchun): bitim ochilgach/boyitilgach
+  `/api/v4/contacts?query=<oxirgi 9 raqam>&with=leads` orqali shu telefonning "forum hamkorlar" dagi boshqa
+  bitimlari qidiriladi (`dublikat` tegli va joriy bitim hisobga olinmaydi; 9 tadan kam yoki 111111111/123456789
+  kabi soxta raqamlar tekshirilmaydi). Avvalroq ochilgan bitim (eng kichik created_at = asosiy) bo‘lsa: yangi
+  bitimga `dublikat` tegi + "Takroriy murojaat. Asosiy bitim: …" eslatmasi, bosqichi Неразобранное/YANGI LID
+  bo‘lsa "rad etdi" (143) ga o‘tadi; asosiy bitimga "Yana murojaat qildi: …, manba, kampaniya" eslatmasi;
+  Telegramda "♻️ Takroriy murojaat" qatori. Hech narsa o‘chirilmaydi; amoCRM xatosi faqat logga yoziladi.
 - Reklama qarori (Nematulla, 2026-10-21): $10/kun, butun O‘zbekiston, muddatsiz (to‘xtatguncha).
   `kreativlar/yangi/` ga video tushsa: Ads Manager'ga yuklash → kampaniya yaratish → DARHOL yoqish
   (alohida tasdiq shart emas), keyin hisobot. Fayl `kreativlar/yuklangan/` ga ko‘chiriladi.

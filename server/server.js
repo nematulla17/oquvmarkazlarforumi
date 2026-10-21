@@ -79,6 +79,7 @@ async function handleLead(req, res) {
   const capi = sendCapi(lead, meta); // Telegram bilan parallel
   lead.fbclid = (/^fb\.\d\.\d+\.(.+)$/.exec(meta.fbc) || [])[1] || "";
   lead.amo_id = await sendAmo(lead);
+  lead.dup_of = await markDuplicate(lead.amo_id, lead.phone, { source: `sayt (${lead.source || "form"})`, campaign: lead.utm_campaign });
   if (BOT_TOKEN && CHAT_ID) {
     const sent = await sendTelegram(formatTelegram(lead));
     if (!sent) console.error("Telegram yuborilmadi", lead.phone);
@@ -159,6 +160,7 @@ async function handleInstantLead(fl, form) {
     if (!lead.amo_id && AMO_TOKEN) return;
     await amoNote(lead.amo_id, formatAnswers(meta.name, answers, byType.EMAIL));
   }
+  lead.dup_of = await markDuplicate(lead.amo_id, lead.phone, { source: `Meta forma (${meta.name})`, campaign: lead.utm_campaign });
   seenLeads.add(fl.id);
   appendCsv(lead);
   // backfill paytida eski lidlar bilan guruhni to‘ldirib yubormaslik uchun: faqat server ishga tushgandan keyingilar
@@ -209,6 +211,77 @@ async function amoNote(amoId, text) {
     method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` },
     body: JSON.stringify([{ note_type: "common", params: { text } }]), signal: AbortSignal.timeout(8000)
   }).catch((e) => console.error("amoCRM eslatma", e.message));
+}
+
+/* ---------- amoCRM: takroriy murojaatlar (dublikat) ----------
+   Yangi bitim tayyor bo‘lgach, "forum hamkorlar" voronkasida shu telefon (oxirgi 9 raqam) kontaktiga
+   bog‘langan avvalgi bitim qidiriladi. Topilsa: yangi bitimga "dublikat" tegi + eslatma (yangi/nerazobrannoe
+   bo‘lsa "rad etdi" 143 ga o‘tadi), asosiy bitimga eslatma. Hech narsa o‘chirilmaydi. Xato — faqat log. */
+const DUP_TAG = "dublikat";
+const DUP_REJECT_FROM = [89356398, 89356402]; // Неразобранное, YANGI LID
+const DUP_REJECT_TO = 143;                    // "rad etdi"
+let amoStatusNames = null;
+
+function phoneKey(phone) {
+  const d = String(phone || "").replace(/\D/g, "");
+  if (d.length < 9) return null;
+  const k = d.slice(-9);
+  if (/^(\d)\1{8}$/.test(k) || k === "123456789" || k === "987654321") return null; // soxta raqam
+  return k;
+}
+
+async function amoGet(p) {
+  const r = await fetch(`${AMO_URL}${p}`, { headers: { Authorization: `Bearer ${AMO_TOKEN}` }, signal: AbortSignal.timeout(8000) });
+  if (r.status === 204) return {};
+  if (!r.ok) throw new Error(`GET ${p.split("?")[0]} ${r.status}`);
+  return r.json();
+}
+
+async function statusName(id) {
+  if (!amoStatusNames) {
+    try {
+      const d = await amoGet(`/api/v4/leads/pipelines/${AMO_PIPELINE}`);
+      amoStatusNames = new Map(((d._embedded || {}).statuses || []).map((s) => [s.id, s.name]));
+    } catch (e) { console.error("amoCRM bosqichlar", e.message); return `bosqich ${id}`; }
+  }
+  return amoStatusNames.get(id) || (id === DUP_REJECT_TO ? "rad etdi" : `bosqich ${id}`);
+}
+
+// null — dublikat yo‘q (yoki xato), {id, url, status} — asosiy bitim
+async function markDuplicate(dealId, phone, info = {}) {
+  const key = phoneKey(phone);
+  if (!AMO_URL || !AMO_TOKEN || !dealId || !key) return null;
+  try {
+    const c = await amoGet(`/api/v4/contacts?query=${key}&with=leads&limit=50`);
+    const ids = new Set([Number(dealId)]);
+    ((c._embedded || {}).contacts || [])
+      .filter((ct) => (ct.custom_fields_values || []).some((f) => f.field_code === "PHONE" && f.values.some((v) => String(v.value).replace(/\D/g, "").endsWith(key))))
+      .forEach((ct) => ((ct._embedded || {}).leads || []).forEach((l) => ids.add(Number(l.id))));
+    if (ids.size < 2) return null;
+    const q = [...ids].slice(0, 250).map((id) => `filter[id][]=${id}`).join("&");
+    const leads = ((await amoGet(`/api/v4/leads?${q}&limit=250`))._embedded || {}).leads || [];
+    const cur = leads.find((l) => l.id === Number(dealId));
+    if (!cur) return null;
+    const hasTag = (l) => ((l._embedded || {}).tags || []).some((t) => t.name === DUP_TAG);
+    const main = leads
+      .filter((l) => l.id !== cur.id && l.pipeline_id === AMO_PIPELINE && !hasTag(l) &&
+        (l.created_at < cur.created_at || (l.created_at === cur.created_at && l.id < cur.id)))
+      .sort((a, b) => a.created_at - b.created_at || a.id - b.id)[0];
+    if (!main) return null;
+
+    const url = `${AMO_URL}/leads/detail/${main.id}`;
+    const status = await statusName(main.status_id);
+    const patch = { tags_to_add: [{ name: DUP_TAG }] };
+    if (DUP_REJECT_FROM.includes(cur.status_id)) patch.status_id = DUP_REJECT_TO;
+    const r = await fetch(`${AMO_URL}/api/v4/leads/${cur.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` },
+      body: JSON.stringify(patch), signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) console.error("amoCRM dublikat belgisi", r.status, (await r.text()).slice(0, 300));
+    await amoNote(cur.id, `Takroriy murojaat. Asosiy bitim: ${url} (${status})`);
+    await amoNote(main.id, `Yana murojaat qildi: ${AMO_URL}/leads/detail/${cur.id}, manba: ${info.source || "—"}, kampaniya: ${info.campaign || "-"}`);
+    return { id: main.id, url, status };
+  } catch (e) { console.error("amoCRM dublikat tekshiruvi", e.message); return null; }
 }
 
 if (META_TOKEN && LEADGEN_FORMS.length) {
@@ -299,6 +372,7 @@ function formatTelegram(l) {
     ``,
     `🔗 Manba: ${esc(src)}${utm ? ` · UTM: ${esc(utm)}` : ""}`,
     l.amo_id ? `📋 <a href="${AMO_URL}/leads/detail/${l.amo_id}">amoCRM bitimi</a>` : (AMO_TOKEN ? `⚠️ amoCRM ga tushmadi` : null),
+    l.dup_of ? `♻️ Takroriy murojaat — asosiy bitim: <a href="${l.dup_of.url}">${l.dup_of.id}</a> (${esc(l.dup_of.status)})` : null,
     `🕒 ${l.submitted_at.replace("T", " ").slice(0, 16)} UTC`
   ].filter((x) => x !== null).join("\n");
 }
