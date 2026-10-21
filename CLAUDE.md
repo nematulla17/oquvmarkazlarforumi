@@ -75,6 +75,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID → Generate Domain. Ulangach `main` ga
   har push avtomatik deploy bo‘ladi.
 - Lokal: Desktop/projectai/yangi oquvmarkazlarforumi (git clone qilinadi).
+- Meta reklama: kabinet `1338204998260984` ("forum 2026", Asia/Tashkent, USD, 2026-10-21 gacha
+  $457.72 sarflangan), sahifa `1339727935893840` ("Oquv markazlar forumi"), IG `17841477739867635`
+  (kabinetga ulanmagan — 2026-10-21 holati). Pixel/dataset yo‘q. Lead Ads ToS qabul qilinmagan.
+  Kampaniyalar faqat PAUSED holatda yaratiladi, yoqish — Nematulla tasdiqlagandan keyin.
 
 ## 6. Qilinmagan / kutilayotgan ishlar
 
