@@ -95,6 +95,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   UTM_*/REFERRER/FBCLID maydonlari, teglar (forum-sayt, paket), eslatma (yo‘nalish, paket, izoh).
   Telegram xabarida bitim havolasi. 2026-10-21 test bitimlari `14903453`, `14903601` "rad etdi" da.
   Teglar: forum-sayt, paket, utm_source (yo‘q bo‘lsa "organik"). UTM sessionStorage da saqlanadi.
+- Reklama qarori (Nematulla, 2026-10-21): $10/kun, butun O‘zbekiston, muddatsiz (to‘xtatguncha).
+  `kreativlar/yangi/` ga video tushsa: Ads Manager'ga yuklash → kampaniya yaratish → DARHOL yoqish
+  (alohida tasdiq shart emas), keyin hisobot. Fayl `kreativlar/yuklangan/` ga ko‘chiriladi.
+  Sayt jonli bo‘lmaguncha kampaniya PAUSED turadi (havola ishlamaydi).
 - Meta reklama havolasi (ad creative `url_tags`):
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
