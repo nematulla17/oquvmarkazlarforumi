@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Forum sotuv paneli</title>
+  <link rel="icon" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top__in">
+      <div class="brand">
+        <img src="/assets/img/logo-emblem.png" alt="" width="32" height="32">
+        <div>
+          <strong>Forum 2026 · sotuv paneli</strong>
+          <span id="updated">Meta Ads + amoCRM</span>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="Bo‘limlar">
+        <a href="#raqamlar">Raqamlar</a>
+        <a href="#voronka">Voronka</a>
+        <a href="#kampaniyalar">Kampaniyalar</a>
+        <a href="#kreativlar">Kreativlar</a>
+      </nav>
+      <form class="range" id="range">
+        <div class="presets" role="group" aria-label="Davr">
+          <button type="button" data-p="today">Bugun</button>
+          <button type="button" data-p="yesterday">Kecha</button>
+          <button type="button" data-p="7">7 kun</button>
+          <button type="button" data-p="30">30 kun</button>
+          <button type="button" data-p="month">Shu oy</button>
+        </div>
+        <label><span>dan</span><input type="date" id="from" required></label>
+        <label><span>gacha</span><input type="date" id="to" required></label>
+        <button type="submit" class="go">Ko‘rsatish</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" class="status" role="status">Ma‘lumotlar yuklanmoqda… Birinchi yuklash 30 soniyagacha davom etishi mumkin.</div>
+    <div id="errors" class="errors" hidden></div>
+
+    <section id="raqamlar" class="sec">
+      <div class="sec__head"><h2>Raqamlar</h2><p id="period" class="muted"></p></div>
+      <h3 class="grp">Meta reklama</h3>
+      <div class="kpis" id="kpi-meta"></div>
+      <h3 class="grp">amoCRM · “forum hamkorlar” voronkasi</h3>
+      <div class="kpis" id="kpi-crm"></div>
+      <div class="charts">
+        <figure class="card chart">
+          <figcaption>Kunlik sarf, $</figcaption>
+          <div class="chart__box"><canvas id="ch-spend" aria-label="Kunlik sarf grafigi" role="img"></canvas></div>
+        </figure>
+        <figure class="card chart">
+          <figcaption>Kunlik lidlar
+            <span class="legend"><i class="sw sw--meta"></i>Meta lidlar <i class="sw sw--crm"></i>CRM lidlar</span>
+          </figcaption>
+          <div class="chart__box"><canvas id="ch-leads" aria-label="Kunlik lidlar grafigi" role="img"></canvas></div>
+        </figure>
+      </div>
+      <details class="card daily">
+        <summary>Kunlik jadval</summary>
+        <div class="scroll"><table class="tbl" id="tbl-daily"></table></div>
+      </details>
+    </section>
+
+    <section id="voronka" class="sec">
+      <div class="sec__head"><h2>Voronka</h2><p class="muted">Davrda yaratilgan bitimlar: qaysi bosqichgacha yetib borgani (bosqichlar tarixi bo‘yicha)</p></div>
+      <div class="funnel-grid">
+        <div class="card"><div id="funnel" class="funnel"></div></div>
+        <div class="card">
+          <h3 class="card__t">Hozirgi bosqichlar</h3>
+          <div id="stages" class="stagebars"></div>
+        </div>
+      </div>
+      <div class="card leads">
+        <div class="filters">
+          <label>Bosqich <select id="f-stage"><option value="">Hammasi</option></select></label>
+          <label>Manba <select id="f-source">
+            <option value="">Hammasi</option><option value="meta-forma">meta-forma</option>
+            <option value="forum-sayt">forum-sayt</option><option value="boshqa">boshqa</option>
+          </select></label>
+          <label class="grow">Qidirish <input type="search" id="f-q" placeholder="Bitim nomi, kampaniya, e‘lon…"></label>
+          <span id="f-count" class="muted"></span>
+        </div>
+        <div class="scroll"><table class="tbl" id="tbl-leads"></table></div>
+        <button type="button" id="more" class="more" hidden>Yana ko‘rsatish</button>
+      </div>
+    </section>
+
+    <section id="kampaniyalar" class="sec">
+      <div class="sec__head"><h2>Kampaniyalar</h2><p class="muted" id="camp-note"></p></div>
+      <div class="card"><div class="scroll"><table class="tbl tbl--camp" id="tbl-camp"></table></div></div>
+    </section>
+
+    <section id="kreativlar" class="sec">
+      <div class="sec__head"><h2>Kreativlar</h2><p class="muted">Davrdagi ko‘rsatkichlar. Videoni ko‘rish uchun ▶ tugmasini bosing.</p></div>
+      <div class="ads" id="ads"></div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="/dashboard/app.js"></script>
+</body>
+</html>

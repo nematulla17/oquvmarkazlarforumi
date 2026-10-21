@@ -50,7 +50,10 @@ css/style.css      vanilla CSS, breakpointlar 640 / 1024 / 1280
 js/main.js         video, menyu, forma, +998 maskasi, UTM, analitika hook, fallback
 server/server.js   Node 18+, tashqi kutubxonasiz: statik sayt + POST /api/lead
                    → Telegram guruh (HTML format) + server/leads.csv
-server/.env        TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (gitga kirmaydi)
+server/dashboard.js  sotuv + Meta Ads dashboard backendi: GET /dashboard, /api/dashboard?from&to,
+                   /api/dashboard/video?id= (Basic auth, 5 daqiqalik xotira keshi, faqat GET so‘rovlar)
+dashboard/         index.html, app.js, style.css — dashboard UI (to‘q tema, Chart.js cdnjs dan)
+server/.env        TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, DASHBOARD_USER/PASSWORD, USD_UZS ... (gitga kirmaydi)
 railway.json       Railway deploy: node server/server.js, healthcheck /
 assets/video/      forum-lavhalar.mp4 — to‘liq 1:41 video, kesilmaydi (Nematulla talabi), 848px, ~8.8 MB.
                    Hero fonida ovozsiz (≥768px), #atmosfera bo‘limida ovozi bilan — bitta fayl
@@ -121,6 +124,25 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
   uchalasini yangilash.
+
+## 5a. Sotuv dashboardi (2026-10-21)
+
+- Ochish: `node server/server.js` → `http://localhost:3000/dashboard` (Railway'da `https://<domen>/dashboard`).
+  Login/parol: `server/.env` → `DASHBOARD_USER` (standart `forum`) / `DASHBOARD_PASSWORD`. Parol bo‘sh bo‘lsa
+  dashboard 503 "dashboard sozlanmagan" qaytaradi. Railway Variables'ga ham DASHBOARD_PASSWORD qo‘shish kerak.
+- Bo‘limlar: Raqamlar (KPI + kunlik grafik/jadval), Voronka (bosqichlar tarixi, lidlar ro‘yxati, filtr),
+  Kampaniyalar (Meta + CRM, ROAS = sotuv so‘m / (sarf × USD_UZS, standart 12800)), Kreativlar (9:16 kartalar,
+  ▶ bosilganda video /api/dashboard/video orqali olinadi — fbcdn havolalari eskirgani uchun talab bo‘yicha).
+- Davr: standart oxirgi 30 kun, Asia/Tashkent; presetlar Bugun/Kecha/7 kun/30 kun/Shu oy.
+- CRM lid → kampaniya/e'lon bog‘lash: avval UTM_CAMPAIGN/UTM_CONTENT, bo‘lmasa "Facebook №<leadgen_id>" nomidagi
+  ID bo‘yicha Graph `/{leadgen_id}?fields=campaign_id,ad_id,...` (xotirada abadiy kesh; server restartdan keyin
+  birinchi yuklash ~30 s). Manba: meta-forma (fb<form> teg / Facebook № / UTM facebook), forum-sayt, boshqa.
+- Meta xatosi: kunlik bo‘lishda (time_increment=1 yoki time_ranges) `actions` maydoni so‘ralsa spend/impressions
+  0 qaytadi — shuning uchun kunlik ma'lumot ikki so‘rovda olinadi (metrikalar va actions alohida).
+- Reels videolari `source` ni system user tokeni bilan bermasa, sahifa tokeni (`/{page}?fields=access_token`) bilan
+  qayta so‘raladi. Video ID faqat dashboard ro‘yxatidagi e'lonlarniki bo‘lsa qabul qilinadi.
+- loadEnv: muhitda (hatto bo‘sh) berilgan o‘zgaruvchi .env dan ustun. Lokal sinovda poller amoCRM ga yozmasligi
+  uchun: `PORT=3019 META_LEADGEN_FORM_IDS= node server/server.js`.
 
 ## 6. Qilinmagan / kutilayotgan ishlar
 

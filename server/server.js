@@ -12,6 +12,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 loadEnv(path.join(__dirname, ".env"));
+const dashboard = require("./dashboard"); // /dashboard va /api/dashboard (Basic auth)
 
 const PORT = Number(process.env.PORT || 3000);
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
@@ -40,6 +41,7 @@ const rate = new Map(); // ip -> [timestamps]
 http.createServer(async (req, res) => {
   try {
     if (req.method === "POST" && req.url === "/api/lead") return await handleLead(req, res);
+    if (await dashboard.handle(req, res)) return;
     if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
     res.writeHead(405); res.end();
   } catch (e) {
@@ -364,6 +366,7 @@ function loadEnv(file) {
   if (!fs.existsSync(file)) return;
   fs.readFileSync(file, "utf8").split("\n").forEach((line) => {
     const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+    // muhitda (hatto bo‘sh qiymat bilan) berilgan o‘zgaruvchi .env dan ustun turadi
+    if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   });
 }
