@@ -249,20 +249,29 @@
       openModal();
     }).catch(function (err) {
       done();
-      track("lead_error", { message: String(err && err.message) });
-      // Server ishlamasa — foydalanuvchini yo‘qotmaymiz: Telegram'ga tayyor xabar bilan yo‘naltiramiz
+      track("lead_fallback", { message: String(err && err.message) });
+      // Server yo‘q (statik hosting) yoki xatolik — arizani Telegram orqali yuborishga o‘tkazamiz
       var text = encodeURIComponent(
-        "Salom! Forum hamkorligi bo‘yicha taklif olmoqchiman.\n" +
+        "Salom! Forum 2026 hamkorligi bo‘yicha taklif olmoqchiman.\n" +
         "Ism: " + payload.name + "\nKompaniya: " + payload.company + "\nTelefon: " + payload.phone +
         "\nYo‘nalish: " + payload.direction + "\nPaket: " + payload.package +
         (payload.comment ? "\nIzoh: " + payload.comment : "")
       );
-      setStatus("Yuborishda xatolik. Qo‘ng‘iroq qiling: +998 77 150 32 32 yoki Telegram orqali yozing.", "error");
-      var a = document.createElement("a");
-      a.href = "https://t.me/oquvmarkazlarforumi?text=" + text;
-      a.target = "_blank"; a.rel = "noopener"; a.className = "link";
-      a.textContent = " Telegram orqali yuborish →";
-      status.appendChild(a);
+      var tgUrl = "https://t.me/oquvmarkazlarforumi?text=" + text;
+      if (modal) {
+        $("#successTitle", modal).textContent = "Arizani Telegram orqali yuboring";
+        $("p", modal).textContent = "Ma’lumotlaringiz tayyor xabar sifatida ochiladi — faqat “Yuborish” tugmasini bosing. Menejer 1 ish kuni ichida bog‘lanadi.";
+        var main = $(".btn", modal);
+        main.textContent = "Telegram orqali yuborish";
+        main.href = tgUrl;
+        main.setAttribute("data-track", "lead_tg_fallback");
+        var link = $(".link--center", modal);
+        link.textContent = "Yoki qo‘ng‘iroq qiling: +998 77 150 32 32";
+        link.href = "tel:+998771503232";
+        openModal();
+      } else {
+        setStatus("Yuborishda xatolik. Qo‘ng‘iroq qiling: +998 77 150 32 32", "error");
+      }
     });
   });
 

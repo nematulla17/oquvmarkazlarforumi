@@ -73,3 +73,11 @@ lidlarni qabul qiladigan manzilni ko‘rsating (yoki `server/server.js` ni alohi
 - `assets/video/hero.mp4` — hero video
 - `assets/img/og-cover.png` — ijtimoiy tarmoqlar uchun 1200×630 rasm
 - FAQ dagi forum sanasi — aniq sana tasdiqlangach
+
+## GitHub Pages
+
+`main` ga har push qilinganda `.github/workflows/pages.yml` saytni GitHub Pages ga chiqaradi
+(`server/` va `docs/` papkalarisiz). Statik hostingda `/api/lead` yo‘q, shuning uchun forma
+arizani tayyor matn bilan Telegram kanaliga yo‘naltiradi. Lidlar to‘g‘ridan-to‘g‘ri guruhga
+tushishi uchun `server/server.js` ni VPS yoki Render/Railway da ishga tushirib, `index.html` ga
+`<script>window.LEAD_ENDPOINT = "https://<server-manzili>/api/lead";</script>` qo‘shing.
