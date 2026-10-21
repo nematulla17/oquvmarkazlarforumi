@@ -99,4 +99,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - Taqdimotdagi raqamlar o‘zgartirilmaydi; yangi raqam faqat tasdiqlangan manbadan.
 - Narx yozilmaydi (taqdimotda yo‘q), "menejer tijorat taklifini yuboradi" formulasi.
 - Dizayn: forum ranglari, gradient va bezaklarsiz, lime faqat CTA va aksent uchun.
+- Uslub (2026-10-21 qayta ishlangan): tadbir afishasi / bosma katalog. O‘tkir burchaklar (2px),
+  ingichka chiziqlar, soya, emoji, pill-yorliq, sanab chiquvchi raqam va scroll-animatsiyasiz.
+  Bo‘lim yorlig‘i `.label` (ustida chiziq), desktopda `.split` (chapda sarlavha, o‘ngda kontent).
+  Tasdiqlanmagan belgilar ("Eng ko‘p tanlanadi") qo‘yilmaydi.
 - UI matnlari o‘zbek lotin, apostrof uchun ‘ (U+2018) belgisi ishlatilgan.

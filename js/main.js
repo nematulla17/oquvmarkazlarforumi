@@ -5,7 +5,7 @@
    - Yo‘nalish kartochkasi -> formani oldindan to‘ldirish
    - Telefon maskasi, validatsiya, yuborish (POST /api/lead)
    - UTM va manbani saqlash
-   - Sticky CTA, raqamlar animatsiyasi, reveal
+   - Sticky CTA
    ===================================================================== */
 (function () {
   "use strict";
@@ -260,7 +260,7 @@
       var tgUrl = "https://t.me/oquvmarkazlarforumi?text=" + text;
       if (modal) {
         $("#successTitle", modal).textContent = "Arizani Telegram orqali yuboring";
-        $("p", modal).textContent = "Ma’lumotlaringiz tayyor xabar sifatida ochiladi — faqat “Yuborish” tugmasini bosing. Menejer 1 ish kuni ichida bog‘lanadi.";
+        $("p", modal).textContent = "Ma’lumotlaringiz tayyor xabar bo‘lib ochiladi. “Yuborish” ni bosing, menejer 1 ish kunida bog‘lanadi.";
         var main = $(".btn", modal);
         main.textContent = "Telegram orqali yuborish";
         main.href = tgUrl;
@@ -283,42 +283,5 @@
     var heroEl = $(".hero"), formEl = $("#ariza");
     new IntersectionObserver(function (en) { hidden.hero = en[0].isIntersecting; update(); }, { threshold: 0.2 }).observe(heroEl);
     new IntersectionObserver(function (en) { hidden.form = en[0].isIntersecting; update(); }, { threshold: 0.15 }).observe(formEl);
-  }
-
-  /* ---------- counters ---------- */
-  function fmt(n, format) {
-    var s = String(Math.round(n));
-    if (format === "space") s = s.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return s;
-  }
-  var counters = $$("[data-count]");
-  if (counters.length && "IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var el = en.target; io.unobserve(el);
-        var target = parseFloat(el.getAttribute("data-count"));
-        var suffix = el.getAttribute("data-suffix") || "";
-        var format = el.getAttribute("data-format");
-        var start = performance.now(), dur = 900;
-        (function tick(now) {
-          var t = Math.min(1, (now - start) / dur);
-          var eased = 1 - Math.pow(1 - t, 3);
-          el.textContent = fmt(target * eased, format) + suffix;
-          if (t < 1) requestAnimationFrame(tick);
-        })(start);
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(function (c) { io.observe(c); });
-  }
-
-  /* ---------- reveal ---------- */
-  var revealEls = $$(".card, .pkg, .step, .dir, .howto li, .needs__grid li");
-  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    revealEls.forEach(function (el) { el.classList.add("reveal"); });
-    var rio = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("is-in"); rio.unobserve(en.target); } });
-    }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
-    revealEls.forEach(function (el) { rio.observe(el); });
   }
 })();
