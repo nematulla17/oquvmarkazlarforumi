@@ -299,11 +299,11 @@
         main.href = tgUrl;
         main.setAttribute("data-track", "lead_tg_fallback");
         var link = $(".link--center", modal);
-        link.textContent = "Yoki qo‘ng‘iroq qiling: +998 77 150 32 32";
-        link.href = "tel:+998771503232";
+        link.textContent = "Yoki qo‘ng‘iroq qiling: +998 55 515 73 91";
+        link.href = "tel:+998555157391";
         openModal();
       } else {
-        setStatus("Yuborishda xatolik. Qo‘ng‘iroq qiling: +998 77 150 32 32", "error");
+        setStatus("Yuborishda xatolik. Qo‘ng‘iroq qiling: +998 55 515 73 91", "error");
       }
     });
   });

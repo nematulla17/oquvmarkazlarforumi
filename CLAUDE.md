@@ -17,7 +17,7 @@ Buyurtmachi: Nematulla (GitHub: nematulla17). Muloqot tili: o‘zbek (lotin).
 
 - Nomi: O‘zbekiston o‘quv markazlari forumi 2026. Tashkilotchi: Yoshlar ishlari agentligi.
 - Joy: Yoshlar ijod saroyi, Toshkent. Aniq sana hali tasdiqlanmagan (dekabr 2026 deb yozilgan).
-- Aloqa: +998 77 150 32 32, t.me/oquvmarkazlarforumi, rasmiy sayt markazlarforumi.uz
+- Aloqa: +998 55 515 73 91, t.me/oquvmarkazlarforumi, rasmiy sayt markazlarforumi.uz
   (bulut sessiyasidan saytga kirib bo‘lmadi, mazmuni hali o‘rganilmagan).
 - Raqamlar: forumda 800+ o‘quv markazi; Forum 2025 qamrovi: telekanallar 12 mln+, saytlar
   5 mln+, ijtimoiy tarmoqlar 700 ming+. O‘quv markazlari soni: 2024 — 9 097, 2025 — 10 385,
