@@ -175,6 +175,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Graph API (system user) orqali, e'lon Ads Manager'da mavjud spiker e'lonini Copy → yangi guruhga Paste
   qilib, videoni Replace media bilan almashtirib yaratiladi; keyin uchala daraja ACTIVE. Mavjud
   reklamalarga (matn, sana va h.k.) Nematulla aytmaguncha tegilmaydi.
+- Sayt kampaniyasi (2026-10-22): `120255897318250150` "Forum 2026 | Sayt | B2B kreativlar (20)" (OUTCOME_LEADS),
+  guruh `120255897319390150` "UZ | 25+ | Sayt Lead" ($10/kun, OFFSITE_CONVERSIONS, pixel LEAD, UZ 25–65 Advantage+).
+  E'lonlar (hammasi Ibrat Farzandlari partnership, sayt URL + url_tags UTM, Browser add-on = None):
+  "B2B video 13-20" (8 video), "B2B rasm 01-06", "B2B rasm 07-12" (1x1+9x16). Partnership e'lonlarda Flexible
+  format yo'q — "Single image or video" ichida 10 tagacha media. Nusxalashda "Instant form (suggested)" add-on
+  o'zi yoqilib qoladi — har doim None ga qaytarish. Kreativlarda rasmiy shaxslar (Alisher Sadullayev va h.k.)
+  kadrlari ISHLATILMAYDI (Nematulla talabi) — faqat zal, olomon, stend, bino, ayol spikerlar.
 - Maqsad (2026-10-22): kuniga 100 lid. Byudjetlar 22.10 da (guruh darajasida): rustam 13, FORUM 1 13, turin 26,
   oquv markazlar 26, 2 hamkorlar 15, ibrat bilan 5 (CPL $2+ bo‘lgani uchun kesildi), spiker kampaniyasi CBO 10
   — jami $108/kun. Byudjet kuniga ko‘pi bilan +20–30% oshiriladi (learning qayta boshlanmasligi uchun).
