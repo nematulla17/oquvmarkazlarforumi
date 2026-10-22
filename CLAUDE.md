@@ -147,6 +147,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   "3" kampaniyasi o‘chiq — tegilmagan. Spiker e'loni `120255874208880150` (kampaniya 120255873473240150)
   — Ibrat Farzandlari bilan PARTNERSHIP (sahifa 109583008861183, IG @ibrat.farzandlari, ruxsat bor).
   Kreativ/forma almashtirish faqat Ads Manager UI orqali (system user ilovasi dev_mode).
+- QOIDA (Nematulla, 2026-10-22): `kreativlar/yangi/` ga tushgan HAR BIR yangi video — ALOHIDA YANGI KAMPANIYA:
+  OUTCOME_LEADS, CBO $10/kun, guruh: UZ, 25+, Advantage+, LEAD_GENERATION (ON_AD, sahifa 1339727935893840),
+  e'lon: forma v3 2652969721821068 + lead nurturing (raqam bilan salomlashuv, 3 ta FAQ), Ibrat Farzandlari
+  bilan partnership, sponsorlarga qaratilgan matn; nom: "Forum 2026 | <video nomi>". Kampaniya va guruh
+  Graph API (system user) orqali, e'lon Ads Manager'da mavjud spiker e'lonini Copy → yangi guruhga Paste
+  qilib, videoni Replace media bilan almashtirib yaratiladi; keyin uchala daraja ACTIVE. Mavjud
+  reklamalarga (matn, sana va h.k.) Nematulla aytmaguncha tegilmaydi.
 - Meta reklama havolasi (ad creative `url_tags`):
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
