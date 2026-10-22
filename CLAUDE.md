@@ -161,6 +161,10 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Graph API (system user) orqali, e'lon Ads Manager'da mavjud spiker e'lonini Copy → yangi guruhga Paste
   qilib, videoni Replace media bilan almashtirib yaratiladi; keyin uchala daraja ACTIVE. Mavjud
   reklamalarga (matn, sana va h.k.) Nematulla aytmaguncha tegilmaydi.
+- Maqsad (2026-10-22): kuniga 100 lid. Byudjetlar 22.10 da (guruh darajasida): rustam 13, FORUM 1 13, turin 26,
+  oquv markazlar 26, 2 hamkorlar 15, ibrat bilan 5 (CPL $2+ bo‘lgani uchun kesildi), spiker kampaniyasi CBO 10
+  — jami $108/kun. Byudjet kuniga ko‘pi bilan +20–30% oshiriladi (learning qayta boshlanmasligi uchun).
+  CRM CAPI 22.10 05:51 UTC da ishga tushdi: birinchi yuborishda 812 hodisa (7 kunlik backfill) qabul qilindi.
 - Meta reklama havolasi (ad creative `url_tags`):
   `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
 - CAPI tokeni, system user tokeni va amoCRM tokeni chatda ochiq yuborilgan — deploydan keyin
