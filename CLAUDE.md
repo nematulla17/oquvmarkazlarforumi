@@ -132,6 +132,12 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   lid ID bo‘lmasa, shu telefonning ±1 soat ichida ochilgan boyitilmagan bitimi topilib boyitiladi (yangisi ochilmaydi).
 - QOIDA (Nematulla, 2026-10-22): "YANGI LID" dagi eski lidlarga (17–19.10, 180 ta, ishlanmagan) TEGILMAYDI —
   ko‘chirilmaydi, yopilmaydi, birlashtirilmaydi.
+- 2026-10-22: amoCRM "Facebook" integratsiyasidan (amoМаркет → Facebook → Форма Facebook) forum formalari
+  (form 1, yangi12/10, hamkorlar uchun) UZILDI — Nematulla talabi. Endi BARCHA forma lidlarini faqat bizning
+  server ochadi: Meta har 30 s so‘raladi (META_LEADGEN_POLL_SEC), kutish yo‘q (META_NATIVE_WAIT_MIN=0),
+  lid ~30–60 s da CRM'da. Render uxlamasligi uchun server RENDER_EXTERNAL_URL ga har 5 daqiqada o‘zi ping
+  qiladi (+ GitHub keepalive). Integratsiyaning o‘zi (Messenger va h.k.) o‘chirilmagan — akkauntni boshqa
+  voronkalar ham ishlatadi.
 - Instant forma javoblari: Meta variant KALITINI qaytaradi (v3 yonalish: d0 EdTech va IT, d1 Marketing va reklama,
   d2 Bank, to‘lov, lizing, d3 Jihoz, mebel, texnika, d4 Nashriyot, o‘quv qurollari, d5 Startap, d6 Boshqa) —
   server forma `questions{options}` dan matnga o‘giradi; yo‘nalish bitimga TEG bo‘lib ham yoziladi.
@@ -145,7 +151,7 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   `3182290488627819`, "yangi12/10/26" `985828477118225`, "Instant forma v1" `1413183077645812`.
 - amoCRM'ning O‘ZINING Facebook integratsiyasi (source 11683) barcha forma lidlarini "forum hamkorlar"
   ga "Facebook №<lead_id>" nomi, `fb<form_id>` va `#forum` teglari bilan ochadi (UTM/javoblarsiz).
-  Bizning server (META_LEADGEN_FORM_IDS = 5 ta forma) har 2 daqiqada lidlarni olib, o‘sha native
+  Bizning server (META_LEADGEN_FORM_IDS = 6 ta forma) har 30 soniyada lidlarni olib, o‘sha native
   bitimni BOYITADI: UTM_SOURCE=facebook, MEDIUM=instant_form, CAMPAIGN/CONTENT/TERM = kampaniya/e'lon/
   guruh, UTM_REFERRER=fb_lead:<id> (takrorlanmaslik belgisi), teglar meta-forma+facebook+paket, javoblar
   eslatmasi; Telegram (faqat server ishga tushgandan keyingi lidlar). 15 daqiqada native bitim

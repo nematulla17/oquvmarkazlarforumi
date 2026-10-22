@@ -27,7 +27,7 @@ const AMO_PIPELINE = Number(process.env.AMOCRM_PIPELINE_ID || 11406294); // "for
 const AMO_STATUS = Number(process.env.AMOCRM_STATUS_ID || 89356402);     // "YANGI LID"
 const META_TOKEN = process.env.META_SYSTEM_USER_TOKEN || "";
 const LEADGEN_FORMS = (process.env.META_LEADGEN_FORM_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
-const LEADGEN_POLL_MS = Number(process.env.META_LEADGEN_POLL_SEC || 120) * 1000;
+const LEADGEN_POLL_MS = Number(process.env.META_LEADGEN_POLL_SEC || 30) * 1000;
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -98,7 +98,13 @@ const seenLeads = new Set();
 const formQuestions = new Map(); // form_id -> { key: {type,label} }
 const BOOT_TS = Date.now();
 let leadgenSince = Math.floor(Date.now() / 1000) - Number(process.env.META_LEADGEN_BACKFILL_HOURS || 72) * 3600; // birinchi aylanishda
-const NATIVE_WAIT_MS = 15 * 60 * 1000;
+// amoCRM'ning o‘z FB integratsiyasi o‘chirilgan (2026-10-22) — lidni darhol o‘zimiz ochamiz; qayta yoqilsa META_NATIVE_WAIT_MIN=15
+const NATIVE_WAIT_MS = Number(process.env.META_NATIVE_WAIT_MIN || 0) * 60 * 1000;
+
+// Render bepul servisi 15 daqiqa tashqi so‘rovsiz uxlaydi — o‘z ochiq manziliga har 5 daqiqada so‘rov yuboradi
+if (process.env.RENDER_EXTERNAL_URL) {
+  setInterval(() => fetch(`${process.env.RENDER_EXTERNAL_URL}/`, { signal: AbortSignal.timeout(20000) }).catch(() => {}), 5 * 60 * 1000);
+}
 
 async function graph(pathAndQuery) {
   const sep = pathAndQuery.includes("?") ? "&" : "?";
