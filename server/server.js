@@ -115,8 +115,11 @@ async function pollLeadgen() {
   for (const form of LEADGEN_FORMS) {
     try {
       if (!formQuestions.has(form)) {
-        const fd = await graph(`${form}?fields=name,questions{key,type,label}`);
-        const q = {}; (fd.questions || []).forEach((x) => { q[x.key] = { type: x.type, label: x.label }; });
+        const fd = await graph(`${form}?fields=name,questions{key,type,label,options}`);
+        const q = {};
+        (fd.questions || []).forEach((x) => {
+          q[x.key] = { type: x.type, label: x.label, options: Object.fromEntries((x.options || []).map((o) => [o.key, o.value])) };
+        });
         formQuestions.set(form, { name: fd.name || form, q });
       }
       let next = `${form}/leads?fields=id,created_time,field_data,ad_name,adset_name,campaign_name,platform&limit=100` +
@@ -135,7 +138,8 @@ async function handleInstantLead(fl, form) {
   const meta = formQuestions.get(form) || { name: form, q: {} };
   const byType = {}, answers = [];
   (fl.field_data || []).forEach((x) => {
-    const v = (x.values || []).join(", "); const q = meta.q[x.name] || {};
+    const q = meta.q[x.name] || {};
+    const v = (x.values || []).map((val) => (q.options && q.options[val]) || val).join(", "); // "d3" -> "Jihoz, mebel, texnika"
     if (q.type && q.type !== "CUSTOM") byType[q.type] = v;
     else if (x.name !== "inbox_url" && v) answers.push([q.label || x.name, v, x.name]);
   });
@@ -149,7 +153,9 @@ async function handleInstantLead(fl, form) {
     utm_campaign: str(fl.campaign_name, 120), utm_content: str(fl.ad_name, 120), utm_term: str(fl.adset_name, 120),
     submitted_at: new Date(fl.created_time || Date.now()).toISOString(), ip: "", fb_lead_id: fl.id
   };
-  const found = await amoFindFbLead(fl.id);
+  let found = await amoFindFbLead(fl.id);
+  if (found === "error") return;
+  if (!found) found = await amoFindNativeByPhone(lead.phone, lead.submitted_at);
   if (found === "error") return;                       // amoCRM javob bermadi — keyingi aylanishda
   if (found && found.marked) { seenLeads.add(fl.id); return; } // allaqachon ishlangan
   if (found) {
@@ -170,6 +176,24 @@ async function handleInstantLead(fl, form) {
 
 function formatAnswers(formName, answers, email) {
   return [`Meta forma: ${formName}`, email ? `Email: ${email}` : null, ...answers.map(([l, v]) => `${l}: ${v}`)].filter(Boolean).join("\n");
+}
+
+// Native integratsiya bitim nomiga lid ID ni har doim yozmaydi: shu telefonning ariza vaqtidan ±1 soat ichida
+// ochilgan, hali boyitilmagan (UTM_REFERRER yo‘q) bitimi bo‘lsa — o‘sha bitim shu lidniki.
+async function amoFindNativeByPhone(phone, submittedAt) {
+  const key = phoneKey(phone);
+  if (!AMO_URL || !AMO_TOKEN || !key) return null;
+  try {
+    const c = await amoGet(`/api/v4/contacts?query=${key}&with=leads&limit=50`);
+    const ids = [...new Set(((c._embedded || {}).contacts || []).flatMap((ct) => ((ct._embedded || {}).leads || []).map((l) => l.id)))];
+    if (!ids.length) return null;
+    const q = ids.slice(0, 250).map((id) => `filter[id][]=${id}`).join("&");
+    const leads = ((await amoGet(`/api/v4/leads?${q}&limit=250`))._embedded || {}).leads || [];
+    const t = Date.parse(submittedAt) / 1000;
+    const hit = leads.find((l) => l.pipeline_id === AMO_PIPELINE && Math.abs(l.created_at - t) < 3600 &&
+      !(l.custom_fields_values || []).some((f) => f.field_code === "UTM_REFERRER"));
+    return hit ? { id: hit.id, marked: false } : null;
+  } catch (e) { console.error("amoCRM telefon qidiruvi", e.message); return "error"; }
 }
 
 // null — topilmadi, "error" — so‘rov xatosi, {id, marked} — topildi
@@ -195,7 +219,7 @@ async function amoEnrich(amoId, l, formName, answers, email) {
   const fields = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
     ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["UTM_REFERRER", `fb_lead:${l.fb_lead_id}`]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
-  const tags_to_add = ["meta-forma", "facebook", l.package].filter(Boolean).map((name) => ({ name }));
+  const tags_to_add = ["meta-forma", "facebook", l.package, l.direction].filter(Boolean).map((name) => ({ name }));
   try {
     const r = await fetch(`${AMO_URL}/api/v4/leads/${amoId}`, {
       method: "PATCH", headers, body: JSON.stringify({ custom_fields_values: fields, tags_to_add }), signal: AbortSignal.timeout(8000)
@@ -221,6 +245,9 @@ async function amoNote(amoId, text) {
 const DUP_TAG = "dublikat";
 const DUP_REJECT_FROM = [89356398, 89356402]; // Неразобранное, YANGI LID
 const DUP_REJECT_TO = 143;                    // "rad etdi"
+// bosqich qanchalik ilgarilagan: asosiy bitim — gaplashilgani (TO‘LANDI > TO‘LOV KUTILYAPTI > ... > YANGI LID)
+const STAGE_ORDER = [143, 89356398, 89356402, 89356518, 89412314, 89356406, 89356410, 142];
+const stageRank = (id) => STAGE_ORDER.indexOf(id);
 let amoStatusNames = null;
 
 function phoneKey(phone) {
@@ -267,8 +294,12 @@ async function markDuplicate(dealId, phone, info = {}) {
     const main = leads
       .filter((l) => l.id !== cur.id && l.pipeline_id === AMO_PIPELINE && !hasTag(l) &&
         (l.created_at < cur.created_at || (l.created_at === cur.created_at && l.id < cur.id)))
-      .sort((a, b) => a.created_at - b.created_at || a.id - b.id)[0];
+      .sort((a, b) => stageRank(b.status_id) - stageRank(a.status_id) || a.created_at - b.created_at || a.id - b.id)[0];
     if (!main) return null;
+    if (main.status_id === DUP_REJECT_TO) { // avval rad etilgan — qayta qiziqish, yangi bitim ochiq qoladi
+      await amoNote(cur.id, `Avval ham murojaat qilgan (rad etilgan): ${AMO_URL}/leads/detail/${main.id}`);
+      return null;
+    }
 
     const url = `${AMO_URL}/leads/detail/${main.id}`;
     const status = await statusName(main.status_id);
@@ -302,7 +333,7 @@ async function sendAmo(l) {
     ["UTM_REFERRER", l.fb_lead_id ? `fb_lead:${l.fb_lead_id}` : ""]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
   const origin = l.source === "instant_form" ? "meta-forma" : "forum-sayt";
-  const tags = [origin, l.package, l.utm_source || "organik", !["form", "instant_form"].includes(l.source) ? l.source : null].filter(Boolean).map((name) => ({ name }));
+  const tags = [origin, l.package, l.direction, l.utm_source || "organik", !["form", "instant_form"].includes(l.source) ? l.source : null].filter(Boolean).map((name) => ({ name }));
   const body = [{
     name: `Forum hamkor: ${l.company}`,
     pipeline_id: AMO_PIPELINE, status_id: AMO_STATUS,
@@ -318,6 +349,7 @@ async function sendAmo(l) {
     if (!r.ok) { console.error("amoCRM xato", r.status, (await r.text()).slice(0, 400)); return null; }
     const id = (await r.json())[0]?.id;
     if (!id) return null;
+    if (l.source === "instant_form") return id; // forma javoblari handleInstantLead da alohida eslatma bo‘lib yoziladi
     const text = [`Saytdan ariza (Forum 2026, biznes hamkorlar)`, `Yo‘nalish: ${l.direction}`, `Paket: ${l.package}`,
       l.comment ? `Izoh: ${l.comment}` : null, `Sahifa: ${l.page || "—"}`].filter(Boolean).join("\n");
     await fetch(`${AMO_URL}/api/v4/leads/${id}/notes`, {

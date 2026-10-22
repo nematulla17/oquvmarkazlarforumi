@@ -127,6 +127,12 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   bitimga `dublikat` tegi + "Takroriy murojaat. Asosiy bitim: …" eslatmasi, bosqichi Неразобранное/YANGI LID
   bo‘lsa "rad etdi" (143) ga o‘tadi; asosiy bitimga "Yana murojaat qildi: …, manba, kampaniya" eslatmasi;
   Telegramda "♻️ Takroriy murojaat" qatori. Hech narsa o‘chirilmaydi; amoCRM xatosi faqat logga yoziladi.
+  2026-10-22 dan: asosiy bitim = eng ilgarilagan bosqichdagisi (gaplashilgani), teng bo‘lsa eng eskisi; avvalgi
+  bitimlar hammasi "rad etdi" bo‘lsa yangi bitim yopilmaydi (qayta qiziqish), faqat eslatma. Native bitim nomida
+  lid ID bo‘lmasa, shu telefonning ±1 soat ichida ochilgan boyitilmagan bitimi topilib boyitiladi (yangisi ochilmaydi).
+- Instant forma javoblari: Meta variant KALITINI qaytaradi (v3 yonalish: d0 EdTech va IT, d1 Marketing va reklama,
+  d2 Bank, to‘lov, lizing, d3 Jihoz, mebel, texnika, d4 Nashriyot, o‘quv qurollari, d5 Startap, d6 Boshqa) —
+  server forma `questions{options}` dan matnga o‘giradi; yo‘nalish bitimga TEG bo‘lib ham yoziladi.
 - Reklama qarori (Nematulla, 2026-10-21): $10/kun, butun O‘zbekiston, muddatsiz (to‘xtatguncha).
   `kreativlar/yangi/` ga video tushsa: Ads Manager'ga yuklash → kampaniya yaratish → DARHOL yoqish
   (alohida tasdiq shart emas), keyin hisobot. Fayl `kreativlar/yuklangan/` ga ko‘chiriladi.
