@@ -124,6 +124,8 @@ async function buildEvents(fromTs) {
     if (!leadId && !phones.length) { stats.skippedNoId++; continue; }
     const name = STAGE_EVENTS[ch.statusId];
     if (name === "Lead" && !leadId) { stats.skippedLeadNoId++; continue; }
+    // dublikat sifatida yopilgan bitim — odam rad etmagan, Meta'ga "Disqualified" yuborilmaydi
+    if (name === "Disqualified" && (((deal._embedded || {}).tags) || []).some((t) => t.name === "dublikat")) { stats.skippedDup = (stats.skippedDup || 0) + 1; continue; }
     const user_data = {};
     if (leadId) user_data.lead_id = leadId; // JSON da son bo‘lib chiqadi (toJson)
     if (phones.length) user_data.ph = phones.map(sha);
