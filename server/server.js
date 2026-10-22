@@ -289,6 +289,9 @@ if (META_TOKEN && LEADGEN_FORMS.length) {
   setTimeout(loop, 5000);
 }
 
+// CAPI for CRM: amoCRM bosqich o‘zgarishlari → Meta (server/crm_capi.js, o‘chirish: CRM_CAPI=off)
+try { if (require("./crm_capi").startCrmCapi()) console.log("CRM CAPI poller yoqildi"); } catch (e) { console.error("CRM CAPI", e.message); }
+
 /* ---------- amoCRM: "forum hamkorlar" voronkasiga bitim + kontakt + kompaniya ---------- */
 async function sendAmo(l) {
   if (!AMO_URL || !AMO_TOKEN) return null;

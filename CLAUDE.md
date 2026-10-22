@@ -107,6 +107,13 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   META_CAPI_TOKEN, META_TEST_EVENT_CODE (faqat Events Manager → Test events dagi haqiqiy kod;
   o‘ylab topilgan kod bilan hodisa oddiy hodisa bo‘lib yoziladi). 2026-10-21 tekshiruvda 2 ta
   test Lead pixelga tushgan (ism "Test Sinov").
+- CAPI for CRM (server/crm_capi.js, 2026-10-22): har 5 daqiqada (CRM_CAPI_POLL_SEC) amoCRM `/api/v4/events`
+  dan "forum hamkorlar" bosqich o‘zgarishlari olinib, pixelga `system_generated` hodisa yuboriladi:
+  YANGI LID→Lead (faqat lead_id bo‘lsa), KO`TARMADI→Not_reached, QAYA ALOQA→Callback, mA`LUMOT BERILDI→Qualified,
+  TO`LOV KUTILYAPTI→Payment_pending, TO`LANDI→Paid (value/UZS), rad etdi→Disqualified (xarita `STAGE_EVENTS`).
+  user_data: lead_id ("Facebook №…" nomi yoki UTM_REFERRER fb_lead:…) + ph xeshi; event_id `crm-<bitim>-<bosqich>`.
+  Birinchi aylanish 7 kun orqaga (CRM_CAPI_BACKFILL_HOURS), keyin 1 soatlik ustma-ust oyna. O‘chirish: CRM_CAPI=off.
+  Tekshirish (yubormaydi): `node server/crm_capi.js --dry-run [--hours N]`.
 - amoCRM: https://sanjarrmm.amocrm.ru, voronka "forum hamkorlar" `11406294`, bosqich "YANGI LID"
   `89356402` (.env: AMOCRM_BASE_URL, AMOCRM_TOKEN, ixtiyoriy AMOCRM_PIPELINE_ID/STATUS_ID). Har
   arizada /leads/complex: bitim "Forum hamkor: {kompaniya}" + kontakt (ism, telefon) + kompaniya,
