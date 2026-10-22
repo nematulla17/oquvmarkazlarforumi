@@ -130,6 +130,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   2026-10-22 dan: asosiy bitim = eng ilgarilagan bosqichdagisi (gaplashilgani), teng bo‘lsa eng eskisi; avvalgi
   bitimlar hammasi "rad etdi" bo‘lsa yangi bitim yopilmaydi (qayta qiziqish), faqat eslatma. Native bitim nomida
   lid ID bo‘lmasa, shu telefonning ±1 soat ichida ochilgan boyitilmagan bitimi topilib boyitiladi (yangisi ochilmaydi).
+- QOIDA (Nematulla, 2026-10-22): "YANGI LID" dagi eski lidlarga (17–19.10, 180 ta, ishlanmagan) TEGILMAYDI —
+  ko‘chirilmaydi, yopilmaydi, birlashtirilmaydi.
 - Instant forma javoblari: Meta variant KALITINI qaytaradi (v3 yonalish: d0 EdTech va IT, d1 Marketing va reklama,
   d2 Bank, to‘lov, lizing, d3 Jihoz, mebel, texnika, d4 Nashriyot, o‘quv qurollari, d5 Startap, d6 Boshqa) —
   server forma `questions{options}` dan matnga o‘giradi; yo‘nalish bitimga TEG bo‘lib ham yoziladi.
