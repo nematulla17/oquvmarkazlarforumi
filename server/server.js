@@ -110,7 +110,8 @@ async function graph(pathAndQuery) {
 
 async function pollLeadgen() {
   const from = leadgenSince;
-  leadgenSince = Math.floor(Date.now() / 1000) - 3600; // keyingi aylanishlarda 1 soatlik ustma-ust oyna
+  // keyingi aylanishlarda ustma-ust oyna (standart 6 soat): Render bepul servisi uxlab qolsa ham lid tushib qolmasin
+  leadgenSince = Math.floor(Date.now() / 1000) - Number(process.env.META_LEADGEN_WINDOW_HOURS || 6) * 3600;
   for (const form of LEADGEN_FORMS) {
     try {
       if (!formQuestions.has(form)) {
