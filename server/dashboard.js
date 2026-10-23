@@ -9,6 +9,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const zlib = require("zlib");
 
 const DIR = path.resolve(__dirname, "..", "dashboard");
 const FILES = { "/dashboard": "index.html", "/dashboard/": "index.html", "/dashboard/index.html": "index.html", "/dashboard/app.js": "app.js", "/dashboard/style.css": "style.css" };
@@ -46,21 +47,24 @@ function env() {
 }
 
 /* ---------- USD → so‘m kursi: Markaziy bank (cbu.uz), 6 soatda bir yangilanadi ----------
-   CBU ishlamasa oxirgi ma'lum kurs, u ham bo‘lmasa USD_UZS (env) ishlatiladi. */
-let fx = null; // { rate, date, t }
-async function usdRate(fallback) {
-  if (fx && Date.now() - fx.t < 6 * 3600 * 1000) return fx;
-  try {
-    const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/", { signal: AbortSignal.timeout(8000) });
-    const row = (await r.json())[0] || {};
-    const rate = Number(row.Rate);
-    if (!r.ok || !(rate > 1000)) throw new Error("CBU javobi noto‘g‘ri");
-    fx = { rate, date: row.Date || "", source: "cbu.uz", t: Date.now() };
-  } catch (err) {
-    console.error("USD kursi:", err.message);
-    if (!fx) return { rate: fallback, date: "", source: "USD_UZS (zaxira)" };
+   So‘rov fonda ketadi va dashboardni kutdirmaydi (Render'dan cbu.uz ko‘pincha javob bermaydi).
+   CBU ishlamasa oxirgi ma'lum kurs, u ham bo‘lmasa USD_UZS (env) ishlatiladi; xatodan keyin 1 soat qayta urinilmaydi. */
+let fx = null, fxTry = 0, fxBusy = null; // fx = { rate, date, source, t }
+function usdRate(fallback) {
+  const fresh = fx && Date.now() - fx.t < 6 * 3600 * 1000;
+  if (!fresh && !fxBusy && Date.now() - fxTry > 3600 * 1000) {
+    fxTry = Date.now();
+    fxBusy = fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/", { signal: AbortSignal.timeout(4000) })
+      .then(async (r) => {
+        const row = (await r.json())[0] || {};
+        const rate = Number(row.Rate);
+        if (!r.ok || !(rate > 1000)) throw new Error("CBU javobi noto‘g‘ri");
+        fx = { rate, date: row.Date || "", source: "cbu.uz", t: Date.now() };
+      })
+      .catch((err) => console.error("USD kursi:", err.message))
+      .finally(() => { fxBusy = null; });
   }
-  return fx;
+  return fx || { rate: fallback, date: "", source: "USD_UZS (zaxira)" };
 }
 
 /* ---------- HTTP kirish nuqtasi: true qaytarsa so‘rov shu yerda ishlandi ---------- */
@@ -92,10 +96,8 @@ async function handle(req, res) {
   try {
     if (p === "/api/dashboard") {
       const { from, to } = parseRange(url.searchParams.get("from"), url.searchParams.get("to"));
-      const rate = await usdRate(e.usdUzs);
-      e.usdUzs = rate.rate; e.usdUzsDate = rate.date; e.usdUzsSource = rate.source;
-      const data = await cached(`dash:${from}:${to}:${rate.date}`, CACHE_MS, () => buildDashboard(from, to, e));
-      sendJson(res, 200, data);
+      const data = await dashboardData(from, to, e);
+      sendJson(res, 200, data, req);
     } else if (p === "/api/dashboard/video") {
       const ids = [url.searchParams.get("id"), url.searchParams.get("alt")].filter((x) => /^\d{5,25}$/.test(x || ""));
       if (!ids.length || !ids.every((id) => knownVideos.has(id))) return sendJson(res, 400, { ok: false, error: "video_id" }), true;
@@ -123,7 +125,43 @@ function send(res, code, type, body) {
   res.writeHead(code, { "Content-Type": type, "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow", "Referrer-Policy": "no-referrer" });
   res.end(body);
 }
-function sendJson(res, code, obj) { send(res, code, "application/json; charset=utf-8", JSON.stringify(obj)); }
+function sendJson(res, code, obj, req) {
+  const body = JSON.stringify(obj);
+  if (req && body.length > 2048 && /\bgzip\b/.test(req.headers["accept-encoding"] || "")) {
+    res.writeHead(code, { "Content-Type": "application/json; charset=utf-8", "Content-Encoding": "gzip", Vary: "Accept-Encoding", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow", "Referrer-Policy": "no-referrer" });
+    return res.end(zlib.gzipSync(body, { level: 6 }));
+  }
+  send(res, code, "application/json; charset=utf-8", body);
+}
+
+/* ---------- dashboard keshi: eskirgan ma'lumot darhol beriladi, yangisi fonda yig‘iladi ----------
+   CACHE_MS dan yangi — keshdan; 6 soatgacha eski — darhol eski + fonda yangilash; undan eski — kutib yig‘ish. */
+const dash = new Map(); // key -> { t, data, busy }
+function dashboardData(from, to, e) {
+  const rate = usdRate(e.usdUzs);
+  e.usdUzs = rate.rate; e.usdUzsDate = rate.date; e.usdUzsSource = rate.source;
+  const k = `${from}:${to}`;
+  const hit = dash.get(k) || {};
+  const refresh = () => hit.busy || (hit.busy = buildDashboard(from, to, e)
+    .then((data) => { hit.t = Date.now(); hit.data = data; return data; })
+    .finally(() => { hit.busy = null; }));
+  dash.set(k, hit);
+  if (dash.size > 50) for (const [key, v] of dash) if (key !== k && !v.busy && Date.now() - (v.t || 0) > 3600 * 1000) dash.delete(key);
+  const age = hit.data ? Date.now() - hit.t : Infinity;
+  if (age < CACHE_MS) return Promise.resolve(hit.data);
+  if (age < 6 * 3600 * 1000) { refresh().catch((err) => console.error("Dashboard fon:", err.message)); return Promise.resolve(hit.data); }
+  return refresh();
+}
+
+// Standart davr (oxirgi 30 kun) har 4 daqiqada fonda yangilanadi — ochganda kutish bo‘lmaydi
+function warm() {
+  const e = env();
+  if (!e.pass || !e.metaToken || !e.amoToken) return;
+  const { from, to } = parseRange(null, null);
+  dashboardData(from, to, e).catch((err) => console.error("Dashboard isitish:", err.message));
+}
+setTimeout(warm, 15 * 1000).unref();
+setInterval(warm, 4 * 60 * 1000).unref();
 
 /* ---------- sana oralig‘i (Toshkent vaqti) ---------- */
 function tashkentToday() { return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10); }
@@ -231,19 +269,25 @@ async function fetchMeta(from, to, token) {
 }
 
 /* ---------- amoCRM (faqat GET) ---------- */
-async function amo(e, p) {
+async function amo(e, p, tries = 3) {
   const r = await fetch(`${e.amoUrl}/api/v4/${p}`, { headers: { Authorization: `Bearer ${e.amoToken}` }, signal: AbortSignal.timeout(25000) });
+  if (r.status === 429 && tries > 1) { await new Promise((ok) => setTimeout(ok, 1500)); return amo(e, p, tries - 1); }
   if (r.status === 204) return {};
   if (!r.ok) throw new Error(`amoCRM ${r.status}`);
   return r.json();
 }
+// Sahifalar 5 tadan parallel olinadi (amoCRM limiti ~7 so‘rov/s)
 async function amoAll(e, p, key, limit, maxPages) {
   let out = [];
-  for (let page = 1; page <= maxPages; page++) {
-    const d = await amo(e, `${p}&limit=${limit}&page=${page}`);
-    const rows = ((d._embedded || {})[key]) || [];
-    out = out.concat(rows);
-    if (rows.length < limit || !(d._links && d._links.next)) break;
+  for (let start = 1; start <= maxPages; start += 5) {
+    const nums = [];
+    for (let page = start; page < start + 5 && page <= maxPages; page++) nums.push(page);
+    const got = await Promise.all(nums.map((page) => amo(e, `${p}&limit=${limit}&page=${page}`)));
+    for (const d of got) {
+      const rows = ((d._embedded || {})[key]) || [];
+      out = out.concat(rows);
+      if (rows.length < limit || !(d._links && d._links.next)) return out;
+    }
   }
   return out;
 }
