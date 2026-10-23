@@ -439,6 +439,7 @@ function appendCsv(l) {
 function serveStatic(req, res) {
   let p = decodeURIComponent(req.url.split("?")[0]);
   if (p === "/") p = "/index.html";
+  if (p === "/privacy") p = "/privacy.html";
   const file = path.normalize(path.join(ROOT, p));
   if (!file.startsWith(ROOT) || file.includes(`${path.sep}server${path.sep}`)) { res.writeHead(403); return res.end(); }
   fs.stat(file, (err, st) => {

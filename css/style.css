@@ -355,7 +355,8 @@ h3 { font-size: 1.05rem; letter-spacing: -.01em; }
 .footer__col { display: grid; gap: 8px; align-content: start; font-size: .9rem; }
 .footer__col b { color: #fff; margin-bottom: 4px; font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; }
 .footer__col a:hover { color: var(--lime); }
-.footer__bottom { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--dark-line); font-size: .78rem; }
+.footer__bottom { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--dark-line); font-size: .78rem; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+.footer__bottom a { color: inherit; opacity: .8; }
 
 /* sticky CTA (mobile) */
 .sticky-cta {
