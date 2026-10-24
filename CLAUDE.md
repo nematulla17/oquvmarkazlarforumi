@@ -170,11 +170,19 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Kreativ/forma almashtirish faqat Ads Manager UI orqali (system user ilovasi dev_mode).
 - QOIDA (Nematulla, 2026-10-22): `kreativlar/yangi/` ga tushgan HAR BIR yangi video — ALOHIDA YANGI KAMPANIYA:
   OUTCOME_LEADS, CBO $10/kun, guruh: UZ, 25+, Advantage+, LEAD_GENERATION (ON_AD, sahifa 1339727935893840),
+  2026-10-24 DAN: Forum APP LIVE — hammasi API orqali, bitta buyruq:
+  `python3 server/launch_video.py <video> "<Ism Familiya (Kompaniya)>"` (andoza kreativ 1579034130648261 — Temurbek e'loni;
+  degrees_of_freedom_spec ichidan standard_enhancements olib tashlanadi, Meta rad etadi). Chrome endi shart emas.
   e'lon: forma v3 2652969721821068 + lead nurturing (raqam bilan salomlashuv, 3 ta FAQ), Ibrat Farzandlari
   bilan partnership, sponsorlarga qaratilgan matn; nom: "Forum 2026 | <video nomi>". Kampaniya va guruh
   Graph API (system user) orqali, e'lon Ads Manager'da mavjud spiker e'lonini Copy → yangi guruhga Paste
   qilib, videoni Replace media bilan almashtirib yaratiladi; keyin uchala daraja ACTIVE. Mavjud
   reklamalarga (matn, sana va h.k.) Nematulla aytmaguncha tegilmaydi.
+- Temurbek Athamov (Najot Ta'lim, Robbit) videosi (2026-10-24): video `1110054788455077`, kampaniya `120255914094910150`
+  ($10 CBO), guruh `120255914095150150`, e'lon `120255914115340150` (Jahongir e'lonidan nusxa). Ads Manager chop etishda
+  xavfsizlik tasdig'i (#3858385, email kod) so'raldi — Nematulla o'zi tasdiqladi.
+- Forum APP ilovasi (2096149907690629) egasi `nematgafforov01@gmail.com` developer akkaunti; Chrome'dagi akkaunt developers
+  saytiga kira olmaydi. Live uchun maxfiylik: https://oquvmarkazlarforumi.onrender.com/privacy (2026-10-23 qo'yildi).
 - Sayt kampaniyasi (2026-10-22): `120255897318250150` "Forum 2026 | Sayt | B2B kreativlar (20)" (OUTCOME_LEADS),
   guruh `120255897319390150` "UZ | 25+ | Sayt Lead" ($10/kun, OFFSITE_CONVERSIONS, pixel LEAD, UZ 25–65 Advantage+).
   E'lonlar (hammasi Ibrat Farzandlari partnership, sayt URL + url_tags UTM, Browser add-on = None):
