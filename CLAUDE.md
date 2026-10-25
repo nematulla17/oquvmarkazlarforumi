@@ -247,3 +247,5 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Bo‘lim yorlig‘i `.label` (ustida chiziq), desktopda `.split` (chapda sarlavha, o‘ngda kontent).
   Tasdiqlanmagan belgilar ("Eng ko‘p tanlanadi") qo‘yilmaydi.
 - UI matnlari o‘zbek lotin, apostrof uchun ‘ (U+2018) belgisi ishlatilgan.
+
+- QOIDA (2026-10-25): Tashkilotchi = "Faol o‘quv markazlar". Yoshlar ishlari agentligi va Alisher Sadullayev sayt, reklama, kreativ, hujjat — hech qayerda ko‘rsatilmaydi.
