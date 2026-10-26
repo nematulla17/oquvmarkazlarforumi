@@ -179,6 +179,7 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   qilib, videoni Replace media bilan almashtirib yaratiladi; keyin uchala daraja ACTIVE. Mavjud
   reklamalarga (matn, sana va h.k.) Nematulla aytmaguncha tegilmaydi.
 - Temurbek Athamov (Najot Ta'lim, Robbit) videosi (2026-10-24): video `1110054788455077`, kampaniya `120255914094910150`
+- Shoxrux Qudratov (Polyglot, Samarqand) videosi (2026-10-26): 17,4–23 s dagi Yoshlar ishlari agentligi logosi/taqdirlash kadri B-roll bilan almashtirildi; video `1675593534214267`, kampaniya `120255949022040150` ($10 CBO), guruh `120255949022270150`, e'lon `120255949024820150`, kreativ `1134177039556103`.
   ($10 CBO), guruh `120255914095150150`, e'lon `120255914115340150` (Jahongir e'lonidan nusxa). Ads Manager chop etishda
   xavfsizlik tasdig'i (#3858385, email kod) so'raldi — Nematulla o'zi tasdiqladi.
 - Forum APP ilovasi (2096149907690629) egasi `nematgafforov01@gmail.com` developer akkaunti; Chrome'dagi akkaunt developers
