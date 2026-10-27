@@ -6,3 +6,4 @@ node_modules/
 # reklama kreativlari (katta media)
 kreativlar/*
 !kreativlar/README.md
+server/.report_state.json

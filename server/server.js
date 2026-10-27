@@ -329,6 +329,7 @@ if (META_TOKEN && LEADGEN_FORMS.length) {
 
 // CAPI for CRM: amoCRM bosqich o‘zgarishlari → Meta (server/crm_capi.js, o‘chirish: CRM_CAPI=off)
 try { if (require("./crm_capi").startCrmCapi()) console.log("CRM CAPI poller yoqildi"); } catch (e) { console.error("CRM CAPI", e.message); }
+try { if (require("./report").start({ token: META_TOKEN, chatId: process.env.REPORT_CHAT_ID || CHAT_ID, botToken: BOT_TOKEN })) console.log("Telegram hisobotlari yoqildi"); } catch (e) { console.error("report", e.message); }
 
 /* ---------- amoCRM: "forum hamkorlar" voronkasiga bitim + kontakt + kompaniya ---------- */
 async function sendAmo(l) {
