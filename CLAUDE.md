@@ -250,3 +250,7 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - UI matnlari o‘zbek lotin, apostrof uchun ‘ (U+2018) belgisi ishlatilgan.
 
 - QOIDA (2026-10-25): Tashkilotchi = "Faol o‘quv markazlar". Yoshlar ishlari agentligi va Alisher Sadullayev sayt, reklama, kreativ, hujjat — hech qayerda ko‘rsatilmaydi.
+- 2026-10-27 BUDJET STRATEGIYASI: maqsad kuniga 100–120 lid, CPL $1–1.5. Arzon kreativga ko'proq pul (+20–30%/kun dan oshmasin).
+  O'zgarishlar: Jahongir $32, Xurshid kamp. $13 (Sherzod e'loni pauza), 2 hamkorlar $19, registon $20, rustam $10, ibrat bilan pauza, Sayt B2B $7 (rasm 01-06 pauza).
+  Yangi: "Forum 2026 | CPL cap $1.5 | Eng arzon kreativlar" kampaniya `120255972093950150` (COST_CAP, bid 150, $30/kun), guruh `120255972095820150`, 5 post: Jahongir, Xurshid, 2, 1, Turin.
+- Telegram hisobotlari: `server/report.js` — 09:00 kecha, 19:00 bugun; hisob to'xtashi (to'lov) va rad etilgan e'lon ogohlantirishi har 30 daqiqada. O'chirish: REPORTS=off.
