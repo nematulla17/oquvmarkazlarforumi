@@ -258,3 +258,5 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   O'zgarishlar: Jahongir $32, Xurshid kamp. $13 (Sherzod e'loni pauza), 2 hamkorlar $19, registon $20, rustam $10, ibrat bilan pauza, Sayt B2B $7 (rasm 01-06 pauza).
   Yangi: "Forum 2026 | CPL cap $1.5 | Eng arzon kreativlar" kampaniya `120255972093950150` (COST_CAP, bid 150, $30/kun), guruh `120255972095820150`, 5 post: Jahongir, Xurshid, 2, 1, Turin.
 - Telegram hisobotlari: `server/report.js` — 09:00 kecha, 19:00 bugun; hisob to'xtashi (to'lov) va rad etilgan e'lon ogohlantirishi har 30 daqiqada. O'chirish: REPORTS=off.
+- 2026-10-27: `120255972093950150` dan cost cap olib tashlandi (LOWEST_COST_WITHOUT_CAP), nomi "Eng arzon kreativlar (cap yo'q)".
+- Rahbarlar kampaniyasi `120255976479680150` ($25 CBO), guruh `120255976480020150`: UZ 25–60, advantage_audience=0, lavozimlar Owner/Founder/CEO/Director/Managing Director/Владелец/Ген.директор + Small business owners, Business page admins + qiziqishlar Entrepreneurship/Small business/Business networking (spec: scratchpad tg_owners.json, ~1.3–1.5 mln). 12 ta forma posti (object_story_id) bitta guruhda.
