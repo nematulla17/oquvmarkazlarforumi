@@ -263,3 +263,15 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - 2026-10-27 kechqurun: eski ad setlar 18–65 yoshda ekan (sifatsiz lid manbai). age_min=25 qilindi (age_range tavsiyasi va
   individual_setting.age olib tashlandi): turin, rustam, ibrat bilan, FORUM 1. registon (`120255805568760150`) va
   "2 hamkorlar" (`120255696751720150`) da Meta "Broaden your audience" deb rad etdi (tor work_positions) — 18+ qolgan.
+- 2026-10-28: IMG_4260 — boshlovchi qiz forum promo videosi (36.9 s). Aslida Yoshlar ishlari agentligi binosi yozuvi,
+  sahna ekranlarida agentlik logosi, rasmiylar delegatsiyasi va panel bor edi → toza versiya: 0–4.25 s bino yozuvi
+  xira, 11.17–12.8 / 20.63–21.9 / 28.0–29.17 b-roll bilan almashtirildi, 15.4–16.6 va 24.25–25.75 logo xira, ovoz asl.
+  Video `1123252093765837`, kampaniya `120255990770520150` "Spiker Promo boshlovchi (forum taklifi)", guruh
+  `120255990770890150`, e'lon `120255990773070150` ($10, 25+). Original reklamaga YOQILMAGAN (yuklangan/…-ORIGINAL.mp4).
+- QOIDA (2026-10-28, foydalanuvchi): yangi videolar ORIGINAL holida yoqiladi, o'zboshimchalik bilan montaj QILINMAYDI.
+  Montaj kerak bo'lsa foydalanuvchi o'zi aytadi. (Agentlik/rasmiy bo'lsa ham — faqat ogohlantirish yetarli.)
+- Forma v4 `1122817890498802` "form v4 (hamkor/ishtirokchi filtri)": 1) rol — Hamkor/Ishtirokchi, 2) yo'nalish,
+  3) ism, telefon, kompaniya. Faqat promo kampaniyada test: e'lon `120255990845420150` (original video `1117643937847111`,
+  kreativ `1648952423527257`, guruh `120255990770890150`). Toza versiya e'loni o'sha guruhda forma v3 bilan qoldi.
+  Server: `rol` → lead.role → amoCRM teg "hamkor"/"ishtirokchi", ishtirokchi bitim nomi "Forum ishtirokchi: …",
+  Telegramda "🙋 Kim" qatori. Render META_LEADGEN_FORM_IDS ga qo'shildi.

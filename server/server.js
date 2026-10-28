@@ -154,6 +154,7 @@ async function handleInstantLead(fl, form) {
     name: str(byType.FULL_NAME || [byType.FIRST_NAME, byType.LAST_NAME].filter(Boolean).join(" ") || "—", 80),
     company: str(byType.COMPANY_NAME || "—", 120), phone: str(byType.PHONE || "", 30),
     direction: str(custom.yonalish, 80), package: str(custom.paket, 30), comment: "",
+    role: /ishtirok/i.test(custom.rol || "") ? "ishtirokchi" : custom.rol ? "hamkor" : "", // forma v4: birinchi savol
     source: "instant_form", page: `Meta forma: ${meta.name} (${fl.platform || "fb/ig"})`, referrer: "",
     utm_source: "facebook", utm_medium: "instant_form",
     utm_campaign: str(fl.campaign_name, 120), utm_content: str(fl.ad_name, 120), utm_term: str(fl.adset_name, 120),
@@ -225,7 +226,7 @@ async function amoEnrich(amoId, l, formName, answers, email) {
   const fields = [["UTM_SOURCE", l.utm_source], ["UTM_MEDIUM", l.utm_medium], ["UTM_CAMPAIGN", l.utm_campaign],
     ["UTM_CONTENT", l.utm_content], ["UTM_TERM", l.utm_term], ["UTM_REFERRER", `fb_lead:${l.fb_lead_id}`]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
-  const tags_to_add = ["meta-forma", "facebook", l.package, l.direction].filter(Boolean).map((name) => ({ name }));
+  const tags_to_add = ["meta-forma", "facebook", l.role, l.package, l.direction].filter(Boolean).map((name) => ({ name }));
   try {
     const r = await fetch(`${AMO_URL}/api/v4/leads/${amoId}`, {
       method: "PATCH", headers, body: JSON.stringify({ custom_fields_values: fields, tags_to_add }), signal: AbortSignal.timeout(8000)
@@ -340,9 +341,9 @@ async function sendAmo(l) {
     ["UTM_REFERRER", l.fb_lead_id ? `fb_lead:${l.fb_lead_id}` : ""]]
     .filter(([, v]) => v).map(([code, v]) => ({ field_code: code, values: [{ value: v }] }));
   const origin = l.source === "instant_form" ? "meta-forma" : "forum-sayt";
-  const tags = [origin, l.package, l.direction, l.utm_source || "organik", !["form", "instant_form"].includes(l.source) ? l.source : null].filter(Boolean).map((name) => ({ name }));
+  const tags = [origin, l.role, l.package, l.direction, l.utm_source || "organik", !["form", "instant_form"].includes(l.source) ? l.source : null].filter(Boolean).map((name) => ({ name }));
   const body = [{
-    name: `Forum hamkor: ${l.company}`,
+    name: `${l.role === "ishtirokchi" ? "Forum ishtirokchi" : "Forum hamkor"}: ${l.company}`,
     pipeline_id: AMO_PIPELINE, status_id: AMO_STATUS,
     custom_fields_values: track.length ? track : undefined,
     _embedded: {
@@ -409,6 +410,7 @@ function formatTelegram(l) {
     `👤 <b>Ism:</b> ${esc(l.name)}`,
     `🏢 <b>Kompaniya:</b> ${esc(l.company)}`,
     `📞 <b>Telefon:</b> <a href="tel:${l.phone.replace(/\s/g, "")}">${esc(l.phone)}</a>`,
+    l.role ? `🙋 <b>Kim:</b> ${l.role === "ishtirokchi" ? "Ishtirokchi" : "Hamkor"}` : null,
     `🎯 <b>Yo‘nalish:</b> ${esc(l.direction)}`,
     `📦 <b>Paket:</b> ${esc(l.package)}`,
     l.comment ? `💬 <b>Izoh:</b> ${esc(l.comment)}` : null,
