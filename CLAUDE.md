@@ -275,3 +275,7 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   kreativ `1648952423527257`, guruh `120255990770890150`). Toza versiya e'loni o'sha guruhda forma v3 bilan qoldi.
   Server: `rol` → lead.role → amoCRM teg "hamkor"/"ishtirokchi", ishtirokchi bitim nomi "Forum ishtirokchi: …",
   Telegramda "🙋 Kim" qatori. Render META_LEADGEN_FORM_IDS ga qo'shildi.
+- 2026-10-29: Odilbek Adoshev (IT kompaniya asoschisi, xodimlar boshqaruvi dasturi) — ORIGINAL holida: video `2532950647186751`,
+  kampaniya `120256011034050150`, guruh `120256011034450150`, e'lon `120256011037880150` ($10, 25+, forma v3).
+- 2026-10-28 kechasi Shahzodbek Haydarov eski kampaniyalarning deyarli hammasini o'chirib, "Forum 2026 | Lead form | CBO | 29.10"
+  (2 ta, $30) ochgan; promo $15. Eski kampaniyalarni qayta yoqish — faqat foydalanuvchi qarori bilan.
