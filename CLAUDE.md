@@ -283,4 +283,5 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Video 1103511805887373 (182 MB → resumable upload, oddiy upload 413 beradi). Kampaniya 120256050916990150
   "Forum 2026 | English Life (collab englishlife.and)" $10 CBO, guruh 120256050917200150 (UZ 25+ Advantage+),
   e'lon 120256050923020150 (forma v3, partnersiz kreativ 1840930873603129) — PAUZADA. Partnership so'rovi
-  Ads Manager orqali yuborildi (request_id 30052804664309303). Tasdiqlangach: e'longa hamkor qo'shib, yoqish.
+  Ads Manager orqali yuborildi (request_id 30052804664309303). 2026-10-31 tasdiqlandi → kreativ 1116353427800167
+  (sponsor: sahifa 1212637698590555, IG 17841407972097408), kampaniya/guruh/e'lon ACTIVE.
