@@ -279,3 +279,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   kampaniya `120256011034050150`, guruh `120256011034450150`, e'lon `120256011037880150` ($10, 25+, forma v3).
 - 2026-10-28 kechasi Shahzodbek Haydarov eski kampaniyalarning deyarli hammasini o'chirib, "Forum 2026 | Lead form | CBO | 29.10"
   (2 ta, $30) ochgan; promo $15. Eski kampaniyalarni qayta yoqish — faqat foydalanuvchi qarori bilan.
+- 2026-10-31: English Life videosi (kreativlar/yangi/2.mp4, 92 s, ORIGINAL) — collab @englishlife.and (sahifa "English Life Uz", bizda dostup yo'q).
+  Video 1103511805887373 (182 MB → resumable upload, oddiy upload 413 beradi). Kampaniya 120256050916990150
+  "Forum 2026 | English Life (collab englishlife.and)" $10 CBO, guruh 120256050917200150 (UZ 25+ Advantage+),
+  e'lon 120256050923020150 (forma v3, partnersiz kreativ 1840930873603129) — PAUZADA. Partnership so'rovi
+  Ads Manager orqali yuborildi (request_id 30052804664309303). Tasdiqlangach: e'longa hamkor qo'shib, yoqish.
