@@ -285,3 +285,8 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   e'lon 120256050923020150 (forma v3, partnersiz kreativ 1840930873603129) — PAUZADA. Partnership so'rovi
   Ads Manager orqali yuborildi (request_id 30052804664309303). 2026-10-31 tasdiqlandi → kreativ 1116353427800167
   (sponsor: sahifa 1212637698590555, IG 17841407972097408), kampaniya/guruh/e'lon ACTIVE.
+- 2026-11-04: markazlarforumi.uz (boshqa jamoaning Next.js sayti, Cloudflare; formalar: /api/landing/partner-requests
+  {full_name,phone,organization,plan}, ishtirokchi OTP ro'yxati, /api/payment/orders, Payme/Click/Uzum Nasiya) — tracking yo'q edi.
+  Pixel "Forum capi" 1767288624497407 shu saytga ham ulanadi. Domen Business'ga qo'shildi (ID 1124105433440771, tasdiqlanmagan):
+  meta-teg / DNS TXT facebook-domain-verification=euftaorrn2n0ualntejj1j4brziksv. Dasturchilar yo'riqnomasi (artifact):
+  https://claude.ai/artifact/8Q56J9XjFwrvBr7cS4TUyH. Deploydan keyin: Verify domain, Test events, dedup, EMQ tekshirish.
