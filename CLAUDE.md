@@ -296,4 +296,4 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
 - Kampaniya `120256197162180150` "MF.uz | Ishtirokchilar | Sotuv (Purchase) | CBO $30", OUTCOME_SALES, optimizatsiya Purchase.
   Guruhlar: Broad `120256197163590150`, Interes `120256197167560150`. Faqat rahbar videolari (lid CPL eng arzon): Registon, Jahongir Po‘latov, Temurbek (asl), Rustam Nishonov, Xurshid (Everest), Turin → /ishtirok-etish (utm_campaign=mf_sales).
   Promo boshlovchi sotuv kampaniyasida YOQILMAYDI (foydalanuvchi: xato yoqilgan, e'lonlari pauza).
-- Retarget guruhi YO'Q: Custom Audiences ToS qabul qilinmagan (#2663). Foydalanuvchi qabul qilgach: scratchpad `sales.py` (auditoriyalar: sayt 30k, xaridorlar 180k istisno, IG/FB 90k).
+- Retarget guruhi `120256201818090150` (08.11, ToS qabul qilingach): sayt 30k `120256201805130150` + IG 90k `120256201810650150` + FB 90k `120256201817630150`. Xaridorlar 180k `120256201810560150` hamma guruhlardan istisno.
