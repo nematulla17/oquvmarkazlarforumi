@@ -290,3 +290,9 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Pixel "Forum capi" 1767288624497407 shu saytga ham ulanadi. Domen Business'ga qo'shildi (ID 1124105433440771, tasdiqlanmagan):
   meta-teg / DNS TXT facebook-domain-verification=euftaorrn2n0ualntejj1j4brziksv. Dasturchilar yo'riqnomasi (artifact):
   https://claude.ai/artifact/8Q56J9XjFwrvBr7cS4TUyH. Deploydan keyin: Verify domain, Test events, dedup, EMQ tekshirish.
+
+## markazlarforumi.uz sotuv kampaniyasi (2026-11-08)
+- Tracking tekshirildi: Pixel+CAPI (1767288624497407) 06.11 dan ishlaydi; Purchase faqat serverdan (order_id, value, currency), EMQ 6.4 (Lead/CR/IC/Purchase).
+- Kampaniya `120256197162180150` "MF.uz | Ishtirokchilar | Sotuv (Purchase) | CBO $30", OUTCOME_SALES, optimizatsiya Purchase.
+  Guruhlar: Broad `120256197163590150`, Interes `120256197167560150`. Videolar: Temurbek (asl), Jahongir Po‘latov, Promo boshlovchi → /ishtirok-etish (utm_campaign=mf_sales).
+- Retarget guruhi YO'Q: Custom Audiences ToS qabul qilinmagan (#2663). Foydalanuvchi qabul qilgach: scratchpad `sales.py` (auditoriyalar: sayt 30k, xaridorlar 180k istisno, IG/FB 90k).
