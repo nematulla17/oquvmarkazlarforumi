@@ -297,3 +297,4 @@ t.me/oquvmarkazlarforumi ga yo‘naltiriladi.
   Guruhlar: Broad `120256197163590150`, Interes `120256197167560150`. Faqat rahbar videolari (lid CPL eng arzon): Registon, Jahongir Po‘latov, Temurbek (asl), Rustam Nishonov, Xurshid (Everest), Turin → /ishtirok-etish (utm_campaign=mf_sales).
   Promo boshlovchi sotuv kampaniyasida YOQILMAYDI (foydalanuvchi: xato yoqilgan, e'lonlari pauza).
 - Retarget guruhi `120256201818090150` (08.11, ToS qabul qilingach): sayt 30k `120256201805130150` + IG 90k `120256201810650150` + FB 90k `120256201817630150`. Xaridorlar 180k `120256201810560150` hamma guruhlardan istisno.
+- 09.11 audit (yo'riqnoma bo'yicha): domen 1124105433440771 VERIFIED. Bajarilmagan: amoCRM'ga forward (CRM'da markazlarforumi.uz lidi yo'q), UTM saqlash, Lead'da external_id, brauzer Purchase (faqat server). EMQ: CR 7.8, IC 6.9, Lead 6.6, Purchase 6.4; dedup event_id ishlaydi.
