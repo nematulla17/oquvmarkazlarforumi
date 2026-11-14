@@ -23,6 +23,7 @@ const CAPI_TOKEN = process.env.META_CAPI_TOKEN || "";
 const CAPI_TEST_CODE = process.env.META_TEST_EVENT_CODE || ""; // faqat test paytida
 const AMO_URL = (process.env.AMOCRM_BASE_URL || "").replace(/\/+$/, "");
 const AMO_TOKEN = process.env.AMOCRM_TOKEN || "";
+const FORWARD_KEY = process.env.SITE_FORWARD_KEY || "";
 const AMO_PIPELINE = Number(process.env.AMOCRM_PIPELINE_ID || 11406294); // "forum hamkorlar"
 const AMO_STATUS = Number(process.env.AMOCRM_STATUS_ID || 89356402);     // "YANGI LID"
 const META_TOKEN = process.env.META_SYSTEM_USER_TOKEN || "";
@@ -41,6 +42,7 @@ const rate = new Map(); // ip -> [timestamps]
 http.createServer(async (req, res) => {
   try {
     if (req.method === "POST" && req.url === "/api/lead") return await handleLead(req, res);
+    if (req.method === "POST" && req.url === "/api/site-event") return await handleSiteEvent(req, res);
     if (await dashboard.handle(req, res)) return;
     if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
     res.writeHead(405); res.end();
@@ -52,7 +54,9 @@ http.createServer(async (req, res) => {
 
 async function handleLead(req, res) {
   const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").toString().split(",")[0].trim();
-  if (!allow(ip)) return json(res, 429, { ok: false, error: "too_many_requests" });
+  // markazlarforumi.uz serveri bitta IP'dan yuboradi: kalit bilan kelsa limit qo'llanmaydi
+  const trusted = FORWARD_KEY && req.headers["x-forward-key"] === FORWARD_KEY;
+  if (!trusted && !allow(ip)) return json(res, 429, { ok: false, error: "too_many_requests" });
 
   const body = await readJson(req, 20_000);
   if (!body) return json(res, 400, { ok: false, error: "bad_json" });
@@ -66,6 +70,8 @@ async function handleLead(req, res) {
     utm_campaign: str(body.utm_campaign, 120), utm_content: str(body.utm_content, 120), utm_term: str(body.utm_term, 120),
     submitted_at: new Date().toISOString(), ip
   };
+  if (/^ishtirokchi/i.test(lead.direction)) lead.role = "ishtirokchi";
+  else if (/^hamkor/i.test(lead.direction)) lead.role = "hamkor";
   const digits = lead.phone.replace(/\D/g, "");
   if (lead.name.length < 2 || lead.company.length < 2 || digits.length !== 12 || !lead.direction) {
     return json(res, 422, { ok: false, error: "validation" });
@@ -331,6 +337,76 @@ if (META_TOKEN && LEADGEN_FORMS.length) {
 // CAPI for CRM: amoCRM bosqich o‘zgarishlari → Meta (server/crm_capi.js, o‘chirish: CRM_CAPI=off)
 try { if (require("./crm_capi").startCrmCapi()) console.log("CRM CAPI poller yoqildi"); } catch (e) { console.error("CRM CAPI", e.message); }
 try { if (require("./report").start({ token: META_TOKEN, chatId: process.env.REPORT_CHAT_ID || CHAT_ID, botToken: BOT_TOKEN })) console.log("Telegram hisobotlari yoqildi"); } catch (e) { console.error("report", e.message); }
+
+/* ---------- markazlarforumi.uz: buyurtma va to‘lov → amoCRM bosqichi ----------
+   Sayt serveri X-Forward-Key bilan yuboradi: {event: "checkout"|"paid", phone, name, order_id, amount, plan, payment_method}.
+   Telefon bo‘yicha voronkadagi asosiy bitim topiladi va oldinga suriladi (orqaga qaytarilmaydi):
+   checkout → TO‘LOV KUTILYAPTI, paid → TO‘LANDI. Bitim topilmasa yangisi ochiladi. */
+const STAGE_PAYMENT_PENDING = 89356410, STAGE_PAID = 142;
+const seenSiteEvents = new Set(); // callback qayta kelsa ikkinchi marta yozilmaydi
+
+async function handleSiteEvent(req, res) {
+  if (!FORWARD_KEY || req.headers["x-forward-key"] !== FORWARD_KEY) return json(res, 401, { ok: false, error: "unauthorized" });
+  const body = await readJson(req, 20_000);
+  if (!body) return json(res, 400, { ok: false, error: "bad_json" });
+  const ev = {
+    event: str(body.event, 20), phone: str(body.phone, 30), name: str(body.name, 80), company: str(body.company, 120),
+    order_id: str(body.order_id, 60), amount: Number(body.amount) || 0, plan: str(body.plan, 40), payment_method: str(body.payment_method, 30)
+  };
+  const stage = { checkout: STAGE_PAYMENT_PENDING, paid: STAGE_PAID }[ev.event];
+  if (!stage || ev.phone.replace(/\D/g, "").length !== 12) return json(res, 422, { ok: false, error: "validation" });
+  const key = `${ev.event}:${ev.order_id || ev.phone}`;
+  if (seenSiteEvents.has(key)) return json(res, 200, { ok: true, duplicate: true });
+  seenSiteEvents.add(key);
+
+  let dealId = await amoFindMainDeal(ev.phone);
+  if (!dealId) {
+    dealId = await sendAmo({ name: ev.name || "Ishtirokchi", company: ev.company || "Hozircha yo'q", phone: ev.phone,
+      direction: "Ishtirokchi (markazlarforumi.uz)", package: ev.plan, role: "ishtirokchi", source: "markazlarforumi.uz",
+      page: "https://markazlarforumi.uz/ishtirok-etish" });
+  }
+  if (dealId) await amoMoveForward(dealId, stage);
+  const sum = ev.amount ? `${ev.amount.toLocaleString("ru-RU")} so‘m` : "—";
+  await amoNote(dealId, `${ev.event === "paid" ? "Saytda to‘lov qildi" : "Saytda buyurtma ochdi, to‘lov kutilmoqda"}\n` +
+    `Buyurtma: ${ev.order_id || "—"} · Summa: ${sum} · Chipta: ${ev.plan || "—"} · To‘lov: ${ev.payment_method || "—"}`);
+  if (ev.event === "paid" && BOT_TOKEN && CHAT_ID) {
+    await sendTelegram([`💳 <b>Chipta sotildi: markazlarforumi.uz</b>`, ``, `👤 ${ev.name || "—"}`, `📞 +${ev.phone.replace(/\D/g, "")}`,
+      `💰 ${sum} · ${ev.payment_method || "—"}`, dealId ? `📋 <a href="${AMO_URL}/leads/detail/${dealId}">amoCRM bitimi</a>` : `⚠️ amoCRM ga tushmadi`].join("\n"));
+  }
+  json(res, 200, { ok: true, deal: dealId || null });
+}
+
+// telefon bo‘yicha voronkadagi asosiy bitim: dublikat emas, eng ilgarilagan bosqichdagisi, teng bo‘lsa eng yangisi
+async function amoFindMainDeal(phone) {
+  const key = phoneKey(phone);
+  if (!AMO_URL || !AMO_TOKEN || !key) return null;
+  try {
+    const c = await amoGet(`/api/v4/contacts?query=${key}&with=leads&limit=50`);
+    const ids = new Set();
+    ((c._embedded || {}).contacts || [])
+      .filter((ct) => (ct.custom_fields_values || []).some((f) => f.field_code === "PHONE" && f.values.some((v) => String(v.value).replace(/\D/g, "").endsWith(key))))
+      .forEach((ct) => ((ct._embedded || {}).leads || []).forEach((l) => ids.add(Number(l.id))));
+    if (!ids.size) return null;
+    const q = [...ids].slice(0, 250).map((id) => `filter[id][]=${id}`).join("&");
+    const leads = ((await amoGet(`/api/v4/leads?${q}&limit=250`))._embedded || {}).leads || [];
+    const hasTag = (l) => ((l._embedded || {}).tags || []).some((t) => t.name === DUP_TAG);
+    const main = leads.filter((l) => l.pipeline_id === AMO_PIPELINE && !hasTag(l))
+      .sort((a, b) => stageRank(b.status_id) - stageRank(a.status_id) || b.created_at - a.created_at)[0];
+    return main ? main.id : null;
+  } catch (e) { console.error("amoCRM bitim qidiruvi", e.message); return null; }
+}
+
+async function amoMoveForward(dealId, stage) {
+  try {
+    const cur = await amoGet(`/api/v4/leads/${dealId}`);
+    if (cur.status_id !== DUP_REJECT_TO && stageRank(cur.status_id) >= stageRank(stage)) return;
+    const r = await fetch(`${AMO_URL}/api/v4/leads/${dealId}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${AMO_TOKEN}` },
+      body: JSON.stringify({ status_id: stage, tags_to_add: [{ name: "markazlarforumi.uz" }] }), signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) console.error("amoCRM bosqich", r.status, (await r.text()).slice(0, 300));
+  } catch (e) { console.error("amoCRM bosqich", e.message); }
+}
 
 /* ---------- amoCRM: "forum hamkorlar" voronkasiga bitim + kontakt + kompaniya ---------- */
 async function sendAmo(l) {
